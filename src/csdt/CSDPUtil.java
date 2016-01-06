@@ -8,6 +8,7 @@ import com.fatwire.cs.core.http.Post;
 import com.fatwire.cs.core.http.Response;
 import com.fatwire.cs.core.realtime.DSKeyInfo;
 import com.fatwire.cs.core.realtime.DataException;
+import com.fatwire.csdt.service.impl.ListDSService;
 import com.fatwire.csdt.service.util.CSDTServiceUtil;
 import com.fatwire.realtime.packager.FSDataStore;
 import com.fatwire.wem.sso.SSOException;
@@ -387,6 +388,160 @@ public class CSDPUtil {
         respreader.close();
         is.close();
         return response;
+    }
+
+    public static ArrayList<String[]> getDSListing() {
+        ArrayList retval = new ArrayList();
+        FSDataStore ds = getDatastore();
+        String response = (new ListDSService()).listKeys(ds, (String)null, (String)null);
+        retval.addAll(_parseResponse("__BEGIN__" + response + "__END__"));
+        return retval;
+    }
+
+    public static ArrayList<String[]> getCSListing(String[] types) {
+        ArrayList retval = new ArrayList();
+        String listStr = "";
+        String[] element = types;
+        int postData = types.length;
+
+        for(int response = 0; response < postData; ++response) {
+            String e = element[response];
+            if(listStr.length() > 0) {
+                listStr = listStr + ";";
+            }
+
+            listStr = listStr + e + ":*";
+        }
+
+        String var9 = "OpenMarket/Xcelerate/PrologActions/Publish/csdt/CSDTService";
+        String var10 = "&resources=" + listStr + "&command=listcs" + "&datastore=" + getDatastoreName();
+
+        String var11;
+        try {
+            var11 = post(var9, var10);
+        } catch (SSOException var7) {
+            var11 = "";
+            //com.fatwire.csdt.util.Log.error(var7);
+        } catch (IOException var8) {
+            var11 = "";
+            //com.fatwire.csdt.util.Log.error(var8);
+        }
+
+        retval.addAll(_parseResponse(var11));
+        return retval;
+
+    }
+    public static String post(String element, String postData) throws SSOException, IOException {
+        Post request = buildPostRequest(element, postData);
+        InputStream respStream = postRequest(request).getResponseBodyAsStream();
+        return generateResponse(respStream);
+    }
+
+    private static List<DSKeyInfo> _filterKeys(Set<String> types, List<DSKeyInfo> keys) {
+        ArrayList ret = new ArrayList();
+        Iterator i$ = types.iterator();
+
+        while(true) {
+            String type;
+            do {
+                if(!i$.hasNext()) {
+                    return ret;
+                }
+
+                type = (String)i$.next();
+            } while(type.startsWith("@"));
+
+            Iterator i$1 = keys.iterator();
+
+            while(i$1.hasNext()) {
+                DSKeyInfo key = (DSKeyInfo)i$1.next();
+                if(key.getName().contains(type)) {
+                    ret.add(key);
+                }
+            }
+        }
+    }
+
+    public static String callExport(Map<String, List<String>> byResType, String siteNamesStr, boolean includeDeps) {
+        String resourcesStr = map2ResourceStr(byResType);
+        String element = "OpenMarket/Xcelerate/PrologActions/Publish/csdt/Stream";
+        String postData = "&command=export&includeDeps=" + includeDeps + (isRemote()?"&remote=true":"");
+        FSDataStore ds = getDatastore();
+        File tempfile = null;
+
+        try {
+            Post e = buildPostRequest(element, postData);
+            e.addParameter("resources", resourcesStr);
+            if(isRemote() && Boolean.parseBoolean(System.getProperty("csdt.uploadDS", "false"))) {
+                Iterator response = e.getParameterNames();
+
+                while(true) {
+                    if(!response.hasNext()) {
+                        List var21 = _filterKeys(byResType.keySet(), ds.keys());
+                        tempfile = Utilities.createTempFile(false);
+                        BufferedOutputStream var23 = new BufferedOutputStream(new FileOutputStream(tempfile));
+                        ds.stream(var21, includeDeps, var23);
+                        IOUtils.closeQuietly(var23);
+                        e.addMultipartData("__CSDTDSItem", "__CSDTDSItem", tempfile.getCanonicalPath());
+                        break;
+                    }
+
+                    String respStream = (String)response.next();
+                    String[] out = e.getParameters(respStream);
+                    int len$ = out.length;
+
+                    for(int i$ = 0; i$ < len$; ++i$) {
+                        String paramVal = out[i$];
+                        e.addMultipartData(respStream, paramVal);
+                    }
+                }
+            }
+
+            Response var20 = postRequest(e);
+            InputStream var22 = var20.getResponseBodyAsStream();
+            ds.ingest(var22);
+        } catch (Exception var18) {
+           // com.fatwire.csdt.util.Log.error(var18);
+            System.out.println(var18);
+            throw new RuntimeException(var18);
+        } finally {
+            if(tempfile != null) {
+                tempfile.delete();
+            }
+
+        }
+
+        return "";
+    }
+
+    private static ArrayList<String[]> _parseResponse(String response) {
+        ArrayList retval = new ArrayList();
+        if(response != null && response.indexOf("__BEGIN__") >= 0) {
+            if(null != response && response.length() > 0) {
+                String[] temp = response.split("__BEGIN__");
+                if(temp != null && temp.length > 1) {
+                    temp = temp[1].split("__END__");
+                }
+
+                if(null != temp && temp.length > 0) {
+                    String msg = temp[0];
+                    String[] arr$ = msg.split(":_:_:");
+                    int len$ = arr$.length;
+
+                    for(int i$ = 0; i$ < len$; ++i$) {
+                        String row = arr$[i$];
+                        if(row != null && row.length() > 0) {
+                            String[] rowdata = row.split(":::___:::");
+                            retval.add(rowdata);
+                        }
+                    }
+                }
+            }
+
+            return retval;
+        } else {
+            return retval;
+        }
     }
 }
 

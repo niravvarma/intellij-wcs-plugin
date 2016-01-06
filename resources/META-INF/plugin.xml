@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.lopesdasilva.wcs.plugin</id>
   <name>IntelliJ Oracle WebCenter Sites Plugin</name>
-  <version>1.0</version>
+  <version>0.1</version>
   <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
 
   <description><![CDATA[
@@ -42,4 +42,10 @@
       <implementation-class>WebCenterSitesPlugin</implementation-class>
     </component>
   </project-components>
+  <actions>
+    <action id="wcs-plugin-sync" class="SyncForm" text="Synchronize Data with WebCenter Sites"
+            description="Opens the synchronization window">
+      <add-to-group group-id="ToolsMenu" anchor="first"/>
+    </action>
+  </actions>
 </idea-plugin>
