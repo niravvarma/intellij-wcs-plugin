@@ -1,5 +1,6 @@
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.project.Project;
 import configurations.WebCenterSitesPluginModuleConfigurationData;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,11 +9,17 @@ import org.jetbrains.annotations.NotNull;
  */
 public class WebCenterSitesPlugin implements ProjectComponent {
 
+    private final Project project;
 
+    public WebCenterSitesPlugin(Project project) {
+        this.project = project;
+        csdt.Preferences.setProject(project);
+    }
 
 
     @Override
     public void initComponent() {
+
         WebCenterSitesPluginModuleConfigurationData.setPluginActive(PropertiesComponent.getInstance().getBoolean("wcs-plugin-active"));
         if(PropertiesComponent.getInstance().getBoolean("wcs-plugin-active")) {
             WebCenterSitesPluginModuleConfigurationData.setInstance(PropertiesComponent.getInstance().getValue("wcs-instance"));
@@ -27,23 +34,19 @@ public class WebCenterSitesPlugin implements ProjectComponent {
 
     @Override
     public void disposeComponent() {
-        System.out.println("getComponentName");
     }
 
     @NotNull
     @Override
     public String getComponentName() {
-        System.out.println("getComponentName");
         return "WebCenterSitesPlugin getComponentName";
     }
 
     @Override
     public void projectOpened() {
-        System.out.println("projectOpened");
     }
 
     @Override
     public void projectClosed() {
-        System.out.println("projectClosed");
     }
 }

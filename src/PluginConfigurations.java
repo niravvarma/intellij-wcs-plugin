@@ -19,7 +19,6 @@ import java.net.URL;
  * Created by NB20308 on 28/12/2015.
  */
 public class PluginConfigurations implements ModuleComponent, Configurable {
-    private JComponent myComponent;
     private JPanel myPanel;
     private JTextField instanceTextField;
     private JButton browseButton;
@@ -53,8 +52,6 @@ public class PluginConfigurations implements ModuleComponent, Configurable {
     @Override
     public JComponent createComponent() {
 
-        System.out.println("createComponent");
-
         enabledCheckBox.setSelected(WebCenterSitesPluginModuleConfigurationData.isPluginActive());
         instanceTextField.setText(WebCenterSitesPluginModuleConfigurationData.getInstance());
         moduleNameTextField.setText(WebCenterSitesPluginModuleConfigurationData.getModuleName());
@@ -67,27 +64,12 @@ public class PluginConfigurations implements ModuleComponent, Configurable {
         workspaceTextField.setText(WebCenterSitesPluginModuleConfigurationData.getWorkspace());
         datastoreTextField.setText(WebCenterSitesPluginModuleConfigurationData.getDataStoreName());
 
-        // Add listener to the Default Font button
-        /*MyButtonListener actionListener = new MyButtonListener();
-        actionListener.myFontName = myFontName;
-        actionListener.myFontSize = myFontSize;
-        MyDefaultFontButton.addActionListener(actionListener);
-        // Define a set of possible values for combo boxes.
-        UISettings settings = UISettings.getInstance();
-        myFontName.setModel(new DefaultComboBoxModel(UIUtil.getValidFontNames(false)));
-        myFontSize.setModel(new DefaultComboBoxModel(UIUtil.getStandardFontSizes()));
-        myFontName.setSelectedItem(settings.FONT_FACE);
-        myFontSize.setSelectedItem(String.valueOf(settings.FONT_SIZE));*/
-
-
-        myComponent = (JComponent) myPanel;
-        return myComponent;
+        return myPanel;
 
     }
 
     @Override
     public boolean isModified() {
-        System.out.println("Settings Changed");
         usernameTextField.setEnabled(enabledCheckBox.isSelected());
         passwordTextField.setEnabled(enabledCheckBox.isSelected());
         instanceTextField.setEnabled(enabledCheckBox.isSelected());
@@ -190,7 +172,6 @@ public class PluginConfigurations implements ModuleComponent, Configurable {
 
     @Override
     public void apply() throws ConfigurationException {
-        System.out.println("Clicked OK");
         if (WebCenterSitesPluginModuleConfigurationData.isConfigValid()) {
             WebCenterSitesPluginModuleConfigurationData.setPluginActive(enabledCheckBox.isSelected());
             //configurations.WebCenterSitesPluginModuleConfigurationData.setPluginActive();
@@ -202,60 +183,45 @@ public class PluginConfigurations implements ModuleComponent, Configurable {
             WebCenterSitesPluginModuleConfigurationData.setWorkspace(workspaceTextField.getText());
             WebCenterSitesPluginModuleConfigurationData.setDataStoreName(datastoreTextField.getText());
         }
-        /*UISettings settings = UISettings.getInstance();
-        LafManager lafManager = LafManager.getInstance();
-        String _fontFace = (String) myFontName.getSelectedItem();
-        String _fontSize_STR = (String) myFontSize.getSelectedItem();
-        int _fontSize = Integer.parseInt(_fontSize_STR);
-
-        if (_fontSize != settings.FONT_SIZE || !settings.FONT_FACE.equals(_fontFace)) {
-            settings.FONT_SIZE = _fontSize;
-            settings.FONT_FACE = _fontFace;
-            settings.fireUISettingsChanged();
-            lafManager.updateUI();
-        }*/
     }
 
     @Override
     public void reset() {
-        System.out.println("Clicked Cancel");
     }
 
     @Override
     public void disposeUIResources() {
-        System.out.println("Should dispose all resources");
-
+        this.disposeComponent();
     }
 
     @Override
     public void projectOpened() {
-        System.out.println("projectOpened");
+
     }
 
     @Override
     public void projectClosed() {
-        System.out.println("projectClosed");
+
     }
 
     @Override
     public void moduleAdded() {
-        System.out.println("moduleAdded");
+
     }
 
     @Override
     public void initComponent() {
-        System.out.println("initComponent " + this.getClass());
+
     }
 
     @Override
     public void disposeComponent() {
-        System.out.println("disposeComponent");
 
     }
 
     @NotNull
     @Override
     public String getComponentName() {
-        return "getComponentNamee";
+        return "IntelliJ WebCenter Sites Addon";
     }
 }

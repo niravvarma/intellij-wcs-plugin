@@ -1,5 +1,14 @@
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
 import csdt.CSDPUtil;
+import csdt.Preferences;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -18,6 +27,8 @@ import java.util.regex.PatternSyntaxException;
  * Created by NB20308 on 04/01/2016.
  */
 public class SyncWindowForm extends JDialog {
+    private static Logger LOG = Logger.getInstance(SyncWindowForm.class);
+    private final Project project;
     private JPanel mainPanel;
     private JTabbedPane tabbedPane1;
     private JButton csSyncSelectionToWorkspaceButton;
@@ -36,14 +47,11 @@ public class SyncWindowForm extends JDialog {
     private JButton helpButton1;
     private Container relativeContainer;
 
-    private static Logger LOG = Logger.getInstance(SyncWindowForm.class);
-
-    public SyncWindowForm(){
+    public SyncWindowForm() {
         LOG.debug("Initializing Sync Window form");
-        LOG.info("Initializing Sync Window form");
-        ArrayList<String[]> listing = null;
         updateCSTable();
         updateDSTable();
+        project = Preferences.getProject();
 
         setTitle("Oracle WebCenter Sites Synchronization tool");
         setContentPane(mainPanel);
@@ -51,13 +59,11 @@ public class SyncWindowForm extends JDialog {
 
         csSyncToWorkspacetextField.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Clicked Search button");
                 updateCSTable();
             }
         });
         csSearchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Clicked Search button");
                 updateCSTable();
             }
         });
@@ -65,7 +71,6 @@ public class SyncWindowForm extends JDialog {
         csSyncSelectionToWorkspaceButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 syncToWorkspace();
-                System.out.println("Clicked Sync to workspace button");
             }
         });
 
@@ -73,14 +78,13 @@ public class SyncWindowForm extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 syncToWorkspace();
                 dispose();
-                System.out.println("Clicked Sync to workspace button");
             }
         });
 
         csRegextextField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                filterTableWithRegex(cstable,csRegextextField.getText());
+                filterTableWithRegex(cstable, csRegextextField.getText());
             }
         });
 
@@ -88,30 +92,27 @@ public class SyncWindowForm extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 syncToWebCenterSites();
                 dispose();
-                System.out.println("Clicked Sync to webcenter sites button");
             }
         });
 
         dsRegextextField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                filterTableWithRegex(dstable,dsRegextextField.getText());
+                filterTableWithRegex(dstable, dsRegextextField.getText());
             }
         });
 
         dsSyncSelectionToWebCenterSites.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 syncToWebCenterSites();
-                System.out.println("Clicked Sync to workspace button");
             }
         });
 
 
     }
-    private void filterTableWithRegex(final JTable table, String regex){
-        try {
-            System.out.println("Regex text: "+ regex);
 
+    private void filterTableWithRegex(final JTable table, String regex) {
+        try {
             final TableRowSorter sorter = new TableRowSorter(table.getModel());
             //Add row filter to the tablerowsorter (regex)
             sorter.setRowFilter(RowFilter.regexFilter(regex));
@@ -126,73 +127,104 @@ public class SyncWindowForm extends JDialog {
             });
 
 
-        } catch (PatternSyntaxException pse) {
-            System.err.println("Bad regex pattern");
+        } catch (PatternSyntaxException e) {
+            LOG.error("Bad regex pattern " + e);
         }
     }
 
     private void syncToWebCenterSites() {
         int[] selectedRows = dstable.getSelectedRows();
 
-        Map<String, java.util.List<String>> csHashMap= new HashMap<String, List<String>>();
-        for (int row:selectedRows){
+        final Map<String, java.util.List<String>> csHashMap = new HashMap<String, List<String>>();
+        for (int row : selectedRows) {
 
-            String type = dstable.getModel().getValueAt(dstable.convertRowIndexToModel(row),0).toString();
-            String id = dstable.getModel().getValueAt(dstable.convertRowIndexToModel(row),1).toString();
-            System.out.print("type: "+type+" - id: "+id);
-            if(csHashMap.containsKey(type)) {
-                ((List)csHashMap.get(type)).add(id);
+            String type = dstable.getModel().getValueAt(dstable.convertRowIndexToModel(row), 0).toString();
+            String id = dstable.getModel().getValueAt(dstable.convertRowIndexToModel(row), 1).toString();
+            if (csHashMap.containsKey(type)) {
+                ((List) csHashMap.get(type)).add(id);
             } else {
                 csHashMap.put(type, new ArrayList());
-                ((List)csHashMap.get(type)).add(id);
+                ((List) csHashMap.get(type)).add(id);
             }
         }
-        try {
-            CSDPUtil.callImport(csHashMap, (String) null, true);
-        }catch(Exception exception){
-            System.out.println("exception: "+exception);
-        }
+
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "WCS import to WebCenter Sites") {
+            public void run(@NotNull ProgressIndicator progressIndicator) {
+                try {
+                    progressIndicator.setFraction(0.33);
+                    progressIndicator.setText("Syncing to WCS");
+                    String result = CSDPUtil.callImport(csHashMap, null, true);
+                    LOG.info("Import complete");
+                    LOG.debug("result: " + result.replaceAll("(?m)^[ \t]*\r?\n", ""));
+                    // Finished
+                    progressIndicator.setFraction(1.0);
+                    progressIndicator.setText("Done");
+                } catch (Exception exception) {
+                    LOG.error("Import Exception: " + exception);
+                }
+            }
+
+            public void onSuccess() {
+                LOG.debug("Background export task Success");
+                Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Success", "Successfully imported to WebCenter Sites", NotificationType.INFORMATION));
+            }
+        });
     }
 
     private void syncToWorkspace() {
         int[] selectedRows = cstable.getSelectedRows();
-        System.out.print(selectedRows);
-        Map<String, java.util.List<String>> csHashMap= new HashMap<String, List<String>>();
-        for (int row:selectedRows){
+        final Map<String, java.util.List<String>> csHashMap = new HashMap<String, List<String>>();
+        for (int row : selectedRows) {
 
-            String type = cstable.getModel().getValueAt(cstable.convertRowIndexToModel(row),0).toString();
-            String id = cstable.getModel().getValueAt(cstable.convertRowIndexToModel(row),1).toString();
-            System.out.print("type: "+type+" - id: "+id);
-            if(csHashMap.containsKey(type)) {
-                ((List)csHashMap.get(type)).add(id);
+            String type = cstable.getModel().getValueAt(cstable.convertRowIndexToModel(row), 0).toString();
+            String id = cstable.getModel().getValueAt(cstable.convertRowIndexToModel(row), 1).toString();
+            if (csHashMap.containsKey(type)) {
+                ((List) csHashMap.get(type)).add(id);
             } else {
                 csHashMap.put(type, new ArrayList());
-                ((List)csHashMap.get(type)).add(id);
+                ((List) csHashMap.get(type)).add(id);
             }
         }
-        try {
-            CSDPUtil.callExport(csHashMap, (String) null, true);
-        }catch(Exception exception){
-                System.out.println("exception: "+exception);
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "WCS export to workspace") {
+            public void run(@NotNull ProgressIndicator progressIndicator) {
+                try {
+                    progressIndicator.setFraction(0.33);
+                    progressIndicator.setText("Syncing from WCS");
+                    String result = CSDPUtil.callExport(csHashMap, null, true);
+                    LOG.info("Export complete");
+                    LOG.debug("result: " + result.replaceAll("(?m)^[ \t]*\r?\n", ""));
+                    // Finished
+                    progressIndicator.setFraction(1.0);
+                    progressIndicator.setText("Done");
+                } catch (Exception exception) {
+                    LOG.error("Export Exception: " + exception);
+                }
             }
+
+            public void onSuccess() {
+                LOG.debug("Background export task Success");
+                Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Success", "Successfully exported from WebCenter Sites", NotificationType.INFORMATION));
+            }
+
+        });
+
 
     }
 
-    private void updateTable(JScrollPane scrollPane, JTable table, ArrayList<String[]> listing, String[] col){
+    private void updateTable(JScrollPane scrollPane, JTable table, ArrayList<String[]> listing, String[] col) {
 
-        Map<String, java.util.List<String>> csHashMap= new HashMap<String, List<String>>();
+        Map<String, java.util.List<String>> csHashMap = new HashMap<String, List<String>>();
         DefaultTableModel tableModel = new DefaultTableModel(col, 0);
-        for (final String[] item:listing){
+        for (final String[] item : listing) {
             tableModel.addRow(item);
-            String type=item[1];
-            String id=item[1];
-            if(csHashMap.containsKey(type)) {
-                ((List)csHashMap.get(type)).add(id);
+            String type = item[1];
+            String id = item[1];
+            if (csHashMap.containsKey(type)) {
+                ((List) csHashMap.get(type)).add(id);
             } else {
                 csHashMap.put(type, new ArrayList());
-                ((List)csHashMap.get(type)).add(id);
+                ((List) csHashMap.get(type)).add(id);
             }
-            //   System.out.println(Arrays.toString(item));
         }
         table.setModel(tableModel);
 
@@ -205,22 +237,21 @@ public class SyncWindowForm extends JDialog {
         ArrayList<String[]> listing = null;
         try {
             listing = CSDPUtil.getCSListing(csSyncToWorkspacetextField.getText().split(","));
-            String col[] = {"Resource Type","Resource Id","Name", "Description", "Modified Date", "Site"};
-            updateTable(csscrollPane, cstable,listing,col);
+            String col[] = {"Resource Type", "Resource Id", "Name", "Description", "Modified Date", "Site"};
+            updateTable(csscrollPane, cstable, listing, col);
         } catch (Exception var32) {
-            //MessageDialog.openError(this.getParent(), "Error Populating The List", "Error while getting the list of files form conent server  " + var32.getMessage() + ", Please see the log file for more details");
-            System.out.println(" \"Error Populating The List\", \"Error while getting the list of files form conent server  \" + var32.getMessage() + \", Please see the log file for more details\"");
+            LOG.error(" \"Error Populating The List\", \"Error while getting the list of files form conent server  \" + var32.getMessage() + \", Please see the log file for more details\"");
         }
     }
+
     private void updateDSTable() {
         ArrayList<String[]> listing = null;
         try {
             listing = CSDPUtil.getDSListing();
-            String col[] = {"Resource Type","Resource Id","Name","Element (if any)", "Description", "Modified Date", "Sites"};
-            updateTable(dsscrollPane, dstable,listing,col);
+            String col[] = {"Resource Type", "Resource Id", "Name", "Element (if any)", "Description", "Modified Date", "Sites"};
+            updateTable(dsscrollPane, dstable, listing, col);
         } catch (Exception var32) {
-            //MessageDialog.openError(this.getParent(), "Error Populating The List", "Error while getting the list of files form conent server  " + var32.getMessage() + ", Please see the log file for more details");
-            System.out.println(" \"Error Populating The List\", \"Error while getting the list of files form conent server  \" + var32.getMessage() + \", Please see the log file for more details\"");
+            LOG.error(" \"Error Populating The List\", \"Error while getting the list of files form conent server  \" + var32.getMessage() + \", Please see the log file for more details\"");
         }
     }
 
@@ -232,7 +263,7 @@ public class SyncWindowForm extends JDialog {
     public void display(Container relativeContainer) {
         this.relativeContainer = relativeContainer;
         refresh();
-        setMinimumSize(new Dimension(900,600));
+        setMinimumSize(new Dimension(900, 600));
         setVisible(true);
     }
 

@@ -1,6 +1,5 @@
 package csdt;
 
-import COM.FutureTense.Interfaces.ICS;
 import COM.FutureTense.Interfaces.Utilities;
 import com.fatwire.cs.core.http.HostConfig;
 import com.fatwire.cs.core.http.HttpAccess;
@@ -12,6 +11,7 @@ import com.fatwire.csdt.service.impl.ListDSService;
 import com.fatwire.csdt.service.util.CSDTServiceUtil;
 import com.fatwire.realtime.packager.FSDataStore;
 import com.fatwire.wem.sso.SSOException;
+import com.intellij.openapi.diagnostic.Logger;
 import configurations.WebCenterSitesPluginModuleConfigurationData;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -28,6 +28,8 @@ import java.util.regex.Matcher;
  */
 
 public class CSDPUtil {
+
+    private static Logger LOG = Logger.getInstance(CSDPUtil.class);
     private static boolean isRemote=true;
 
     private static String map2ResourceStr(Map<String, List<String>> byResType) {
@@ -154,7 +156,7 @@ public class CSDPUtil {
         String fixedfn = filename.replaceAll("\\\\", "/");
         String element = "OpenMarket/Xcelerate/PrologActions/Publish/csdt/CSDTService";
         String postData = "&command=import&filename=" + fixedfn + "&includeDeps=" + includeDeps + (isRemote()?"&remote=true":"");
-        Response res = doImport(element, postData, ds, Collections.singletonList(dskey), includeDeps, (String)null);
+        Response res = doImport(element, postData, ds, Collections.singletonList(dskey), includeDeps, null);
         return res.getResponseBodyAsString();
     }
 
@@ -209,7 +211,7 @@ public class CSDPUtil {
     }
 
     public static Post buildPostRequest(String element) throws SSOException {
-        return buildPostRequest(element, (String)null);
+        return buildPostRequest(element, null);
     }
 
     public static Post buildPostRequest(String element, String postData) throws SSOException {
@@ -325,7 +327,7 @@ public class CSDPUtil {
     }
     public static FSDataStore getDatastore() {
         String basepath = (new File(getWorkspaceFullPath())).getParentFile().getParent();
-        return FSDataStore.getInstance((ICS)null, basepath, getDatastoreName());
+        return FSDataStore.getInstance(null, basepath, getDatastoreName());
     }
     public static String getDatastoreName() {
         //return Activator.getDefault().getPreferenceStore().getString("fw.datastorename");
@@ -382,7 +384,6 @@ public class CSDPUtil {
 
         String response;
         for(response = ""; (resp = respreader.readLine()) != null; response = response + resp) {
-            ;
         }
 
         respreader.close();
@@ -393,7 +394,7 @@ public class CSDPUtil {
     public static ArrayList<String[]> getDSListing() {
         ArrayList retval = new ArrayList();
         FSDataStore ds = getDatastore();
-        String response = (new ListDSService()).listKeys(ds, (String)null, (String)null);
+        String response = (new ListDSService()).listKeys(ds, null, null);
         retval.addAll(_parseResponse("__BEGIN__" + response + "__END__"));
         return retval;
     }
@@ -500,10 +501,9 @@ public class CSDPUtil {
             Response var20 = postRequest(e);
             InputStream var22 = var20.getResponseBodyAsStream();
             ds.ingest(var22);
-        } catch (Exception var18) {
-           // com.fatwire.csdt.util.Log.error(var18);
-            System.out.println(var18);
-            throw new RuntimeException(var18);
+        } catch (Exception e) {
+            LOG.error("Exception " + e);
+            throw new RuntimeException(e);
         } finally {
             if(tempfile != null) {
                 tempfile.delete();

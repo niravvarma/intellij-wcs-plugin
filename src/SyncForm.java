@@ -16,7 +16,6 @@ public class SyncForm extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent event) {
         //TextConsoleBuidlerFactory.getInstance().createBuilder(project).getConsole()
-        System.out.println("Opening Sync tool now");
         Project project = event.getData(PlatformDataKeys.PROJECT);
         JFrame frame = WindowManager.getInstance().getFrame(project);
         final SyncWindowForm syncWindowForm = new SyncWindowForm();
