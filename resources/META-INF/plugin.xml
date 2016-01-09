@@ -2,16 +2,18 @@
   <id>com.lopesdasilva.wcs.plugin</id>
   <name>IntelliJ Oracle WebCenter Sites Plugin</name>
   <version>0.1</version>
-  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+  <vendor email="lopesdasilva.rui@gmail.com" url="https://github.com/lopesdasilva/intellij-wcs-plugin">Intellij WCS
+    Plugin
+  </vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      This is a UNOFFICIAL Oracle WebCenter Sites plugin for IntelliJ  .<br>
+      <em>This is still alpga version</em>
     ]]></description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      Added on Save Listener to sync to wcs.<br>
+      Added Synchronization tool (import/export).<br>
     ]]>
   </change-notes>
 
