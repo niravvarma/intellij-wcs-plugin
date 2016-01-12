@@ -1,5 +1,7 @@
 package configurations;
 
+import java.util.HashMap;
+
 /**
  * Created by NB20308 on 28/12/2015.
  */
@@ -16,28 +18,28 @@ public class WebCenterSitesPluginModuleConfigurationData {
     private static String moduleName;
     private static boolean pluginActive;
     private static boolean configValid;
+    private static String instance;
 
-    public static void setInstance(String instance) {
+    public static HashMap<String, String> processInstanceString(String instance) {
+        HashMap<String, String> hashMap = new HashMap<>();
         if(instance.toLowerCase().startsWith("http://") ){
             String _aux=instance.replace("http://","");
             String[] splittedByDots = _aux.split(":");
             String[] splittedByBar= splittedByDots[1].split("/");
-            setHost(splittedByDots[0]);
-            setPort(splittedByBar[0]);
-            setWebContextPath(splittedByBar[1]);
+            hashMap.put("host", splittedByDots[0]);
+            hashMap.put("port", splittedByBar[0]);
+            hashMap.put("webcontextpath", splittedByBar[1]);
+
         }else if (instance.toLowerCase().startsWith("https://")){
             String _aux=instance.replace("https://","");
             String[] splittedByDots = _aux.split(":");
             String[] splittedByBar= splittedByDots[1].split("/");
-            setHost(splittedByDots[0]);
-            setPort(splittedByBar[0]);
-            setWebContextPath(splittedByBar[1]);
+            hashMap.put("host", splittedByDots[0]);
+            hashMap.put("port", splittedByBar[0]);
+            hashMap.put("webcontextpath", splittedByBar[1]);
         }
-        WebCenterSitesPluginModuleConfigurationData.instance = instance;
-
+        return hashMap;
     }
-
-    private static String instance;
 
     public static String getWorkspace() {
         return workspace;
@@ -115,6 +117,15 @@ public class WebCenterSitesPluginModuleConfigurationData {
         return instance;
     }
 
+    public static void setInstance(String instance) {
+        HashMap<String, String> processedInstanceString = processInstanceString(instance);
+        setHost(processedInstanceString.get("host"));
+        setPort(processedInstanceString.get("port"));
+        setWebContextPath(processedInstanceString.get("webcontextpath"));
+        WebCenterSitesPluginModuleConfigurationData.instance = instance;
+
+    }
+
     public static boolean isPluginActive() {
         return pluginActive;
     }
@@ -123,11 +134,11 @@ public class WebCenterSitesPluginModuleConfigurationData {
         WebCenterSitesPluginModuleConfigurationData.pluginActive = pluginActive;
     }
 
-    public static void setConfigValid(boolean configValid) {
-        WebCenterSitesPluginModuleConfigurationData.configValid = configValid;
-    }
-
     public static boolean isConfigValid() {
         return configValid;
+    }
+
+    public static void setConfigValid(boolean configValid) {
+        WebCenterSitesPluginModuleConfigurationData.configValid = configValid;
     }
 }

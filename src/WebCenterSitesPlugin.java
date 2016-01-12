@@ -1,11 +1,10 @@
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.project.Project;
-import com.intellij.util.xmlb.XmlSerializerUtil;
 import configurations.WebCenterSitesPluginModuleConfigurationData;
+import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jdom.Element;
 
 /**
  * Created by NB20308 on 28/12/2015.
@@ -39,7 +38,7 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
     @Override
     public void initComponent() {
 
-        WebCenterSitesPluginModuleConfigurationData.setPluginActive(PropertiesComponent.getInstance().getBoolean("wcs-plugin-active"));
+        /*WebCenterSitesPluginModuleConfigurationData.setPluginActive(PropertiesComponent.getInstance().getBoolean("wcs-plugin-active"));
         if (PropertiesComponent.getInstance().getBoolean("wcs-plugin-active")) {
             WebCenterSitesPluginModuleConfigurationData.setInstance(PropertiesComponent.getInstance().getValue("wcs-instance"));
             WebCenterSitesPluginModuleConfigurationData.setModuleName(PropertiesComponent.getInstance().getValue("wcs-module-name"));
@@ -48,7 +47,7 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
             WebCenterSitesPluginModuleConfigurationData.setContextPath(PropertiesComponent.getInstance().getValue("wcs-context-path"));
             WebCenterSitesPluginModuleConfigurationData.setWorkspace(PropertiesComponent.getInstance().getValue("wcs-workspace"));
             WebCenterSitesPluginModuleConfigurationData.setDataStoreName(PropertiesComponent.getInstance().getValue("wcs-datastore"));
-        }
+        }*/
     }
 
     @Override
@@ -78,8 +77,8 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
         final Element element = new Element("intellij-addon-plugin");
 
         // meta configuration information
-        final Element stateElement = new Element("state");
-        stateElement.setAttribute("wcs-plugin-active", String.valueOf(PropertiesComponent.getInstance().getBoolean("wcs-plugin-active")));
+        final Element stateElement = new Element("config");
+        stateElement.setAttribute("wcs-plugin-active", String.valueOf(WebCenterSitesPluginModuleConfigurationData.isPluginActive()));
         if(PropertiesComponent.getInstance().getBoolean("wcs-plugin-active")) {
             if (PropertiesComponent.getInstance().getValue("wcs-instance") != null){
                 stateElement.setAttribute("wcs-instance", PropertiesComponent.getInstance().getValue("wcs-instance"));
@@ -115,7 +114,7 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
         sessionState = new SessionState();
 
         // meta configuration information
-        Element stateElement = element.getChild("state");
+        Element stateElement = element.getChild("config");
         // version not needed yet
         String pluginActive = stateElement.getAttributeValue("wcs-plugin-active");
         String instance = stateElement.getAttributeValue("wcs-instance");
@@ -135,5 +134,15 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
                 "\ndatastore: " + datastore
         );
 
+        WebCenterSitesPluginModuleConfigurationData.setPluginActive(Boolean.valueOf(pluginActive));
+        if (WebCenterSitesPluginModuleConfigurationData.isPluginActive()) {
+            WebCenterSitesPluginModuleConfigurationData.setInstance(instance);
+            WebCenterSitesPluginModuleConfigurationData.setModuleName(moduleName);
+            WebCenterSitesPluginModuleConfigurationData.setUsername(username);
+            WebCenterSitesPluginModuleConfigurationData.setPassword(password);
+            WebCenterSitesPluginModuleConfigurationData.setContextPath(contextPath);
+            WebCenterSitesPluginModuleConfigurationData.setWorkspace(workspace);
+            WebCenterSitesPluginModuleConfigurationData.setDataStoreName(datastore);
+        }
     }
 }

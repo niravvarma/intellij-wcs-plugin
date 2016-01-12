@@ -14,6 +14,7 @@ import javax.swing.*;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 
 /**
  * Created by NB20308 on 28/12/2015.
@@ -118,11 +119,12 @@ public class PluginConfigurations implements ModuleComponent, Configurable {
 
     private boolean checkConfigurations() {
         try {
+            HashMap<String, String> processedInstanceString = WebCenterSitesPluginModuleConfigurationData.processInstanceString(instanceTextField.getText());
             String t = usernameTextField.getText();
             String passStr = passwordTextField.getText();
-            String hostname = hostnameTextField.getText();
-            String port = portTextField.getText();
-            String webContext = webContextPathTextField.getText();
+            String hostname = processedInstanceString.get("host");
+            String port = processedInstanceString.get("port");
+            String webContext = processedInstanceString.get("webcontextpath");
             if (null != t && t.trim().length() != 0 && null != passStr && passStr.trim().length() != 0) {
                 String baseUrl = CSDPUtil.getBaseUrl(hostname, port, webContext);
                 String csUrl = baseUrl + "/" + "ContentServer" + "?" + "pagename" + "=" + "OpenMarket/Xcelerate/PrologActions/Publish/csdt/CSDTService";
