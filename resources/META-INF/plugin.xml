@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.lopesdasilva.wcs.plugin</id>
   <name>IntelliJ Oracle WebCenter Sites Plugin</name>
-  <version>0.1</version>
+  <version>0.2</version>
   <vendor email="lopesdasilva.rui@gmail.com" url="https://github.com/lopesdasilva/intellij-wcs-plugin">Intellij WCS
     Plugin
   </vendor>
@@ -14,6 +14,7 @@
   <change-notes><![CDATA[
       Added on Save Listener to sync to wcs.<br>
       Added Synchronization tool (import/export).<br>
+      Added project config file.<br>
     ]]>
   </change-notes>
 

@@ -1,5 +1,6 @@
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.components.*;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import configurations.WebCenterSitesPluginModuleConfigurationData;
 import org.jdom.Element;
@@ -19,35 +20,18 @@ import org.jetbrains.annotations.Nullable;
 )
 public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateComponent<Element> {
 
+    private static Logger LOG = Logger.getInstance(WebCenterSitesPlugin.class);
     private final Project project;
-
-    private SessionState sessionState;
     private PluginConfigurations form;
 
     public WebCenterSitesPlugin(Project project) {
         this.project = project;
         csdt.Preferences.setProject(project);
-        sessionState = new SessionState();
-    }
-
-    public SessionState getSessionState() {
-        return sessionState;
     }
 
 
     @Override
     public void initComponent() {
-
-        /*WebCenterSitesPluginModuleConfigurationData.setPluginActive(PropertiesComponent.getInstance().getBoolean("wcs-plugin-active"));
-        if (PropertiesComponent.getInstance().getBoolean("wcs-plugin-active")) {
-            WebCenterSitesPluginModuleConfigurationData.setInstance(PropertiesComponent.getInstance().getValue("wcs-instance"));
-            WebCenterSitesPluginModuleConfigurationData.setModuleName(PropertiesComponent.getInstance().getValue("wcs-module-name"));
-            WebCenterSitesPluginModuleConfigurationData.setUsername(PropertiesComponent.getInstance().getValue("wcs-username"));
-            WebCenterSitesPluginModuleConfigurationData.setPassword(PropertiesComponent.getInstance().getValue("wcs-password"));
-            WebCenterSitesPluginModuleConfigurationData.setContextPath(PropertiesComponent.getInstance().getValue("wcs-context-path"));
-            WebCenterSitesPluginModuleConfigurationData.setWorkspace(PropertiesComponent.getInstance().getValue("wcs-workspace"));
-            WebCenterSitesPluginModuleConfigurationData.setDataStoreName(PropertiesComponent.getInstance().getValue("wcs-datastore"));
-        }*/
     }
 
     @Override
@@ -57,7 +41,7 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
     @NotNull
     @Override
     public String getComponentName() {
-        return "WebCenterSitesPlugin getComponentName";
+        return "Intellij WCS Plugin";
     }
 
     @Override
@@ -71,34 +55,33 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
     @Nullable
     @Override
     public Element getState() {
-        System.out.println("saving state");
-        //LOG.debug("Saving state");
+        LOG.debug("Saving addon configuration file");
 
         final Element element = new Element("intellij-addon-plugin");
 
         // meta configuration information
         final Element stateElement = new Element("config");
         stateElement.setAttribute("wcs-plugin-active", String.valueOf(WebCenterSitesPluginModuleConfigurationData.isPluginActive()));
-        if(PropertiesComponent.getInstance().getBoolean("wcs-plugin-active")) {
-            if (PropertiesComponent.getInstance().getValue("wcs-instance") != null){
+        if (PropertiesComponent.getInstance().getBoolean("wcs-plugin-active")) {
+            if (PropertiesComponent.getInstance().getValue("wcs-instance") != null) {
                 stateElement.setAttribute("wcs-instance", PropertiesComponent.getInstance().getValue("wcs-instance"));
             }
-            if (PropertiesComponent.getInstance().getValue("wcs-module-name") != null){
+            if (PropertiesComponent.getInstance().getValue("wcs-module-name") != null) {
                 stateElement.setAttribute("wcs-module-name", PropertiesComponent.getInstance().getValue("wcs-module-name"));
             }
-            if (PropertiesComponent.getInstance().getValue("wcs-username") != null){
+            if (PropertiesComponent.getInstance().getValue("wcs-username") != null) {
                 stateElement.setAttribute("wcs-username", PropertiesComponent.getInstance().getValue("wcs-username"));
             }
-            if (PropertiesComponent.getInstance().getValue("wcs-password") != null){
+            if (PropertiesComponent.getInstance().getValue("wcs-password") != null) {
                 stateElement.setAttribute("wcs-password", PropertiesComponent.getInstance().getValue("wcs-password"));
             }
-            if (PropertiesComponent.getInstance().getValue("wcs-context-path") != null){
+            if (PropertiesComponent.getInstance().getValue("wcs-context-path") != null) {
                 stateElement.setAttribute("wcs-context-path", PropertiesComponent.getInstance().getValue("wcs-context-path"));
             }
-            if (PropertiesComponent.getInstance().getValue("wcs-workspace") != null){
+            if (PropertiesComponent.getInstance().getValue("wcs-workspace") != null) {
                 stateElement.setAttribute("wcs-workspace", PropertiesComponent.getInstance().getValue("wcs-workspace"));
             }
-            if (PropertiesComponent.getInstance().getValue("wcs-datastore") != null){
+            if (PropertiesComponent.getInstance().getValue("wcs-datastore") != null) {
                 stateElement.setAttribute("wcs-datastore", PropertiesComponent.getInstance().getValue("wcs-datastore"));
             }
         }
@@ -109,9 +92,7 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
 
     @Override
     public void loadState(Element element) {
-        System.out.println("Loading state");
-
-        sessionState = new SessionState();
+        LOG.debug("Loading addon configuration file");
 
         // meta configuration information
         Element stateElement = element.getChild("config");
@@ -124,13 +105,13 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
         String contextPath = stateElement.getAttributeValue("wcs-context-path");
         String workspace = stateElement.getAttributeValue("wcs-workspace");
         String datastore = stateElement.getAttributeValue("wcs-datastore");
-        System.out.println("pluginActive: " + pluginActive+
-                           "\ninstance: " + instance+
-                "\nmoduleName: " + moduleName+
-                "\nusername: " + username+
-                "\npassword: " + password+
-                "\ncontextPath: " + contextPath+
-                "\nworkspace: " + workspace+
+        LOG.debug("pluginActive: " + pluginActive +
+                "\ninstance: " + instance +
+                "\nmoduleName: " + moduleName +
+                "\nusername: " + username +
+                "\npassword: " + password +
+                "\ncontextPath: " + contextPath +
+                "\nworkspace: " + workspace +
                 "\ndatastore: " + datastore
         );
 

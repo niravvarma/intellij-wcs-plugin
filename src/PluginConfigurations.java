@@ -176,7 +176,6 @@ public class PluginConfigurations implements ModuleComponent, Configurable {
     public void apply() throws ConfigurationException {
         if (WebCenterSitesPluginModuleConfigurationData.isConfigValid()) {
             WebCenterSitesPluginModuleConfigurationData.setPluginActive(enabledCheckBox.isSelected());
-            //configurations.WebCenterSitesPluginModuleConfigurationData.setPluginActive();
             WebCenterSitesPluginModuleConfigurationData.setInstance(instanceTextField.getText());
             WebCenterSitesPluginModuleConfigurationData.setModuleName(moduleNameTextField.getText());
             WebCenterSitesPluginModuleConfigurationData.setUsername(usernameTextField.getText());
