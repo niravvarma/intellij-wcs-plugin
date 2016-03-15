@@ -1,0 +1,17 @@
+import COM.FutureTense.Interfaces.ICS
+import COM.FutureTense.Interfaces.FTValList
+import COM.FutureTense.Util.ftMessage
+import COM.FutureTense.Util.ftErrors
+import com.fatwire.assetapi.data.AssetDataManager
+import com.fatwire.assetapi.data.AssetDataManagerImpl
+import com.fatwire.assetapi.data.AssetData
+import com.fatwire.assetapi.data.BlobObject
+import com.fatwire.assetapi.data.AttributeData
+import com.fatwire.assetapi.data.AssetId
+import com.fatwire.system.Session
+import com.fatwire.system.SessionFactory
+
+
+
+/* Your groovy code here /*
+

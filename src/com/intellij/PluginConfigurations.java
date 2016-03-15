@@ -1,11 +1,13 @@
+package com.intellij;
+
 import com.fatwire.wem.sso.SSOException;
-import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.configurations.WebCenterSitesPluginModuleConfigurationData;
+import com.intellij.csdt.CSDPUtil;
+import com.intellij.csdt.TicketMaster;
 import com.intellij.openapi.module.ModuleComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
-import configurations.WebCenterSitesPluginModuleConfigurationData;
-import csdt.CSDPUtil;
-import csdt.TicketMaster;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,6 +39,10 @@ public class PluginConfigurations implements ModuleComponent, Configurable {
     private WebCenterSitesPluginModuleConfigurationData webCenterSitesPluginModuleConfigurationData;
 
 
+    public PluginConfigurations(Project project) {
+        webCenterSitesPluginModuleConfigurationData = WebCenterSitesPluginModuleConfigurationData.getInstance(project);
+    }
+
     @Nls
     @Override
     public String getDisplayName() {
@@ -53,17 +59,17 @@ public class PluginConfigurations implements ModuleComponent, Configurable {
     @Override
     public JComponent createComponent() {
 
-        enabledCheckBox.setSelected(WebCenterSitesPluginModuleConfigurationData.isPluginActive());
-        instanceTextField.setText(WebCenterSitesPluginModuleConfigurationData.getInstance());
-        moduleNameTextField.setText(WebCenterSitesPluginModuleConfigurationData.getModuleName());
-        usernameTextField.setText(WebCenterSitesPluginModuleConfigurationData.getUsername());
-        passwordTextField.setText(WebCenterSitesPluginModuleConfigurationData.getPassword());
-        hostnameTextField.setText(WebCenterSitesPluginModuleConfigurationData.getHostName());
-        portTextField.setText(WebCenterSitesPluginModuleConfigurationData.getPort());
-        webContextPathTextField.setText(WebCenterSitesPluginModuleConfigurationData.getWebContextPath());
-        sitesContextPathTextField.setText(WebCenterSitesPluginModuleConfigurationData.getSitesContextPath());
-        workspaceTextField.setText(WebCenterSitesPluginModuleConfigurationData.getWorkspace());
-        datastoreTextField.setText(WebCenterSitesPluginModuleConfigurationData.getDataStoreName());
+        enabledCheckBox.setSelected(webCenterSitesPluginModuleConfigurationData.isPluginActive());
+        instanceTextField.setText(webCenterSitesPluginModuleConfigurationData.getInstance());
+        moduleNameTextField.setText(webCenterSitesPluginModuleConfigurationData.getModuleName());
+        usernameTextField.setText(webCenterSitesPluginModuleConfigurationData.getUsername());
+        passwordTextField.setText(webCenterSitesPluginModuleConfigurationData.getPassword());
+        hostnameTextField.setText(webCenterSitesPluginModuleConfigurationData.getHostName());
+        portTextField.setText(webCenterSitesPluginModuleConfigurationData.getPort());
+        webContextPathTextField.setText(webCenterSitesPluginModuleConfigurationData.getWebContextPath());
+        sitesContextPathTextField.setText(webCenterSitesPluginModuleConfigurationData.getContextPath());
+        workspaceTextField.setText(webCenterSitesPluginModuleConfigurationData.getWorkspace());
+        datastoreTextField.setText(webCenterSitesPluginModuleConfigurationData.getDataStoreName());
 
         return myPanel;
 
@@ -81,36 +87,29 @@ public class PluginConfigurations implements ModuleComponent, Configurable {
         if (enabledCheckBox.isSelected()) {
             if (instanceTextField.getText().isEmpty()) {
                 statusJLabel.setText("The Instance field cannot be empty.");
-                WebCenterSitesPluginModuleConfigurationData.setConfigValid(false);
+                webCenterSitesPluginModuleConfigurationData.setConfigValid(false);
             } else if (moduleNameTextField.getText().isEmpty()) {
                 statusJLabel.setText("The Module name field cannot be empty.");
-                WebCenterSitesPluginModuleConfigurationData.setConfigValid(false);
+                webCenterSitesPluginModuleConfigurationData.setConfigValid(false);
             } else if (usernameTextField.getText().isEmpty()) {
                 statusJLabel.setText("The Username field cannot be empty.");
-                WebCenterSitesPluginModuleConfigurationData.setConfigValid(false);
+                webCenterSitesPluginModuleConfigurationData.setConfigValid(false);
             } else if (passwordTextField.getText().isEmpty()) {
                 statusJLabel.setText("The Password field cannot be empty.");
-                WebCenterSitesPluginModuleConfigurationData.setConfigValid(false);
+                webCenterSitesPluginModuleConfigurationData.setConfigValid(false);
             } else if (sitesContextPathTextField.getText().isEmpty()) {
                 statusJLabel.setText("The Sites Context Path field cannot be empty.");
-                WebCenterSitesPluginModuleConfigurationData.setConfigValid(false);
+                webCenterSitesPluginModuleConfigurationData.setConfigValid(false);
             } else if (workspaceTextField.getText().isEmpty()) {
                 statusJLabel.setText("The Workspace field cannot be empty.");
-                WebCenterSitesPluginModuleConfigurationData.setConfigValid(false);
+                webCenterSitesPluginModuleConfigurationData.setConfigValid(false);
             } else if (datastoreTextField.getText().isEmpty()) {
                 statusJLabel.setText("The DataStore field cannot be empty.");
-                WebCenterSitesPluginModuleConfigurationData.setConfigValid(false);
+                webCenterSitesPluginModuleConfigurationData.setConfigValid(false);
             } else {
                 statusJLabel.setText("Checking configurations...");
-                PropertiesComponent.getInstance().setValue("wcs-plugin-active", true);
-                PropertiesComponent.getInstance().setValue("wcs-instance", instanceTextField.getText());
-                PropertiesComponent.getInstance().setValue("wcs-module-name", moduleNameTextField.getText());
-                PropertiesComponent.getInstance().setValue("wcs-username", usernameTextField.getText());
-                PropertiesComponent.getInstance().setValue("wcs-password", passwordTextField.getText());
-                PropertiesComponent.getInstance().setValue("wcs-context-path", sitesContextPathTextField.getText());
-                PropertiesComponent.getInstance().setValue("wcs-workspace", workspaceTextField.getText());
-                PropertiesComponent.getInstance().setValue("wcs-datastore", datastoreTextField.getText());
-                    WebCenterSitesPluginModuleConfigurationData.setConfigValid(checkConfigurations());
+
+                webCenterSitesPluginModuleConfigurationData.setConfigValid(checkConfigurations());
             }
         }
 
@@ -174,15 +173,15 @@ public class PluginConfigurations implements ModuleComponent, Configurable {
 
     @Override
     public void apply() throws ConfigurationException {
-        if (WebCenterSitesPluginModuleConfigurationData.isConfigValid()) {
-            WebCenterSitesPluginModuleConfigurationData.setPluginActive(enabledCheckBox.isSelected());
-            WebCenterSitesPluginModuleConfigurationData.setInstance(instanceTextField.getText());
-            WebCenterSitesPluginModuleConfigurationData.setModuleName(moduleNameTextField.getText());
-            WebCenterSitesPluginModuleConfigurationData.setUsername(usernameTextField.getText());
-            WebCenterSitesPluginModuleConfigurationData.setPassword(passwordTextField.getText());
-            WebCenterSitesPluginModuleConfigurationData.setContextPath(sitesContextPathTextField.getText());
-            WebCenterSitesPluginModuleConfigurationData.setWorkspace(workspaceTextField.getText());
-            WebCenterSitesPluginModuleConfigurationData.setDataStoreName(datastoreTextField.getText());
+        if (webCenterSitesPluginModuleConfigurationData.isConfigValid()) {
+            webCenterSitesPluginModuleConfigurationData.setPluginActive(enabledCheckBox.isSelected());
+            webCenterSitesPluginModuleConfigurationData.setInstance(instanceTextField.getText());
+            webCenterSitesPluginModuleConfigurationData.setModuleName(moduleNameTextField.getText());
+            webCenterSitesPluginModuleConfigurationData.setUsername(usernameTextField.getText());
+            webCenterSitesPluginModuleConfigurationData.setPassword(passwordTextField.getText());
+            webCenterSitesPluginModuleConfigurationData.setContextPath(sitesContextPathTextField.getText());
+            webCenterSitesPluginModuleConfigurationData.setWorkspace(workspaceTextField.getText());
+            webCenterSitesPluginModuleConfigurationData.setDataStoreName(datastoreTextField.getText());
         }
     }
 

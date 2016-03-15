@@ -1,3 +1,6 @@
+package com.intellij;
+
+import com.intellij.csdt.CSDPUtil;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
@@ -6,8 +9,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import csdt.CSDPUtil;
-import csdt.Preferences;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -28,7 +29,7 @@ import java.util.regex.PatternSyntaxException;
  */
 public class SyncWindowForm extends JDialog {
     private static Logger LOG = Logger.getInstance(SyncWindowForm.class);
-    private final Project project;
+    private Project project;
     private JPanel mainPanel;
     private JTabbedPane tabbedPane1;
     private JButton csSyncSelectionToWorkspaceButton;
@@ -47,11 +48,16 @@ public class SyncWindowForm extends JDialog {
     private JButton helpButton1;
     private Container relativeContainer;
 
+    public SyncWindowForm(Project project) {
+        this.project = project;
+    }
     public SyncWindowForm() {
         LOG.debug("Initializing Sync Window form");
         updateCSTable();
         updateDSTable();
-        project = Preferences.getProject();
+//        project = Preferences.getProject();
+
+
 
         setTitle("Oracle WebCenter Sites Synchronization tool");
         setContentPane(mainPanel);

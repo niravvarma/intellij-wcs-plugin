@@ -1,0 +1,45 @@
+<html>
+<head>
+<title>Search Reference</title>
+</head>
+<body>
+<p>
+To select content from WebCenter Sites, type any of the following selectors into the search text area and click the Search button. You can also use multiple selectors separated by comma.
+</p>
+<dl>
+<dt>
+<b>Searching for Assets</b>
+</dt>
+<dd>
+<p>
+To search for assets, simply type the asset type as search criteria or use @ALL_ASSETS to select all assets of all types from WebCenter Sites 
+<br/><b>Example:</b><br/>
+<em>Content_C</em>  - show all Content_C assets<br>
+<em>Product_C,Product_P,Page</em>  - show all Product_C, Product_P, and Page assets<br>
+<em>Template,CSElement,SiteEntry</em>  - show all Template,CSElement, and SiteEntry assets<br>
+<em>@ALL_ASSETS</em>  - show all assets of all types on this WebCenter Sites instance. May take awhile!<br>
+</p>
+</dd>
+<dt>
+<b>Searching Non-asset Data</b>
+</dt>
+<dd>
+<p>
+To search for non-asset data, use the following selectors:<br/><br/>
+@SITE - sites<br/>
+@ROLE - roles<br/>
+@ASSET_TYPE - asset types, including flex family schemas<br/>
+@STARTMENU - start menus<br/>
+@TREETAB - tree tabs<br/> 
+@ALL_NONASSETS - compound selector for all sites, roles, start menus ...<br/>
+@SITECATALOG - site catalog entries<br/>
+@ELEMENTCATALOG - element catalog entries<br><br/> 
+<b>Examples:</b><br/> 
+<em>@SITE,@ROLE</em>  - show all available sites and roles<br>
+<em>@SITECATALOG,@ELEMENTCATALOG</em>  - show all available SiteCatalog and ElementCatalog entries on this WebCenter Sites instance<br>
+<em>@TREETAB,Document_C</em>  - show all available tree tabs and Document_C assets<br>
+</p>
+</dd>
+</dl>
+</body>
+</html>

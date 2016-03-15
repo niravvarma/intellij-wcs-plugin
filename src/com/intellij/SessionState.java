@@ -1,3 +1,5 @@
+package com.intellij;
+
 /**
  * Created by lopesdasilva on 12/01/16.
  */

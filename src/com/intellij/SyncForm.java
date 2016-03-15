@@ -1,4 +1,6 @@
-import com.intellij.ide.util.PropertiesComponent;
+package com.intellij;
+
+import com.intellij.configurations.WebCenterSitesPluginModuleConfigurationData;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -12,6 +14,8 @@ import javax.swing.*;
  * Created by NB20308 on 04/01/2016.
  */
 public class SyncForm extends AnAction {
+    WebCenterSitesPluginModuleConfigurationData webCenterSitesPluginModuleConfigurationData;
+
 
     @Override
     public void actionPerformed(AnActionEvent event) {
@@ -23,8 +27,8 @@ public class SyncForm extends AnAction {
 
     @Override
     public void update(AnActionEvent e) {
-        if (PropertiesComponent.getInstance().getBoolean("wcs-plugin-active")) {
-            Object navigatable = e.getData(CommonDataKeys.NAVIGATABLE);
+        if (WebCenterSitesPluginModuleConfigurationData.getInstance(e.getProject()).isPluginActive()) {
+            Object navigatable = e.getData(CommonDataKeys.PROJECT);
             e.getPresentation().setEnabledAndVisible(navigatable != null);
         } else {
             return;

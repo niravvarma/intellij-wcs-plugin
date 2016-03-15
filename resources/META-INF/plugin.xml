@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>com.lopesdasilva.wcs.plugin</id>
   <name>IntelliJ Oracle WebCenter Sites Plugin</name>
-  <version>0.2</version>
+  <version>0.3</version>
   <vendor email="lopesdasilva.rui@gmail.com" url="https://github.com/lopesdasilva/intellij-wcs-plugin">Intellij WCS
     Plugin
   </vendor>
@@ -12,6 +12,7 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      Fixed bug with multiple Intellij windows opened.<br>
       Added on Save Listener to sync to wcs.<br>
       Added Synchronization tool (import/export).<br>
       Added project config file.<br>
@@ -27,28 +28,37 @@
   <depends>com.intellij.modules.lang</depends>
   -->
 
-
+  <extensions defaultExtensionNs="com.intellij">
+    <projectService serviceInterface="com.intellij.configurations.WebCenterSitesPluginModuleConfigurationData"
+                    serviceImplementation="com.intellij.configurations.WebCenterSitesPluginModuleConfigurationData"/>
+  </extensions>
 
   <application-components>
-    <component>
-      <implementation-class>OnFileSaveComponent</implementation-class>
-    </component>
+
   </application-components>
 
   <module-components>
     <component>
-      <implementation-class>PluginConfigurations</implementation-class>
+      <implementation-class>com.intellij.PluginConfigurations</implementation-class>
     </component>
+
   </module-components>
   <project-components>
     <component>
-      <implementation-class>WebCenterSitesPlugin</implementation-class>
+      <implementation-class>com.intellij.WebCenterSitesPlugin</implementation-class>
+    </component>
+    <component>
+      <implementation-class>com.intellij.OnFileSaveComponent</implementation-class>
     </component>
   </project-components>
   <actions>
-    <action id="wcs-plugin-sync" class="SyncForm" text="Synchronize Data with WebCenter Sites"
-            description="Opens the synchronization window">
-      <add-to-group group-id="ToolsMenu" anchor="first"/>
-    </action>
+    <group id="MenuGroup" text="WCS Plugin" popup="true"
+           class="com.intellij.actions.MenuGroup">
+      <add-to-group anchor="first" group-id="ToolsMenu"/>
+    </group>
+    <!-- <action id="wcs-plugin-sync" class="com.intellij.SyncForm" text="Synchronize Data with WebCenter Sites"
+             description="Open the synchronization window">
+       <add-to-group group-id="ToolsMenu" anchor="first"/>
+     </action>-->
   </actions>
 </idea-plugin>

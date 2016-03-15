@@ -3,7 +3,7 @@
 // (powered by Fernflower decompiler)
 //
 
-package csdt;
+package com.intellij.csdt;
 
 import com.fatwire.wem.sso.SSO;
 import com.fatwire.wem.sso.SSOException;
@@ -48,14 +48,14 @@ public class TicketMaster {
         }
     }
 
-    private static void setCurrentTicket(String ticket) {
-        //Activator.getDefault().setTix(ticket);
-        currentTicket=ticket;
-    }
-
     private static String getCurrentTicket() {
         //return Activator.getDefault().getTix();
         return currentTicket;
+    }
+
+    private static void setCurrentTicket(String ticket) {
+        //Activator.getDefault().setTix(ticket);
+        currentTicket = ticket;
     }
 
     public static String getNewTicket(TicketParams params) throws SSOException {

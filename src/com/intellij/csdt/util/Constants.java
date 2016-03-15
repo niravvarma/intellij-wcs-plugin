@@ -1,9 +1,8 @@
-//
+package com.intellij.csdt.util;//
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by Fernflower decompiler)
 //
 
-package csdt;
 
 import java.util.regex.Pattern;
 
@@ -222,16 +221,16 @@ public final class Constants {
     public static final String TASK_SAVE_SITE_CATALOG_ENTRY = "Save Site Catalog Entry";
     public static final String TASK_SAVE_SITE_ENTRY = "Save Site Entry";
     public static final String TASK_SAVE_ELEMENT = "Save Element";
-    /*public static final ImageDescriptor IMAGE_TEMPLATE_BIG = Activator.getImageDescriptor("/icons/Template_big.png");
-    public static final ImageDescriptor IMAGE_ELEMENT_BIG = Activator.getImageDescriptor("/icons/CSElement_big.png");
-    public static final ImageDescriptor IMAGE_ELEMENT_CATALOG_ENTRY_BIG = Activator.getImageDescriptor("/icons/ecatalog_big.png");
-    public static final ImageDescriptor IMAGE_SITE_ENTRY_BIG = Activator.getImageDescriptor("/icons/siteentry_big.png");
-    public static final ImageDescriptor IMAGE_SITE_CATALOG_ENTRY_BIG = Activator.getImageDescriptor("/icons/scatalog_big.png");
-    public static final ImageDescriptor IMAGE_TEMPLATE = Activator.getImageDescriptor("icons/Template.png");
-    public static final ImageDescriptor IMAGE_ELEMENT = Activator.getImageDescriptor("icons/CSElement.png");
-    public static final ImageDescriptor IMAGE_ELEMENT_CATALOG_ENTRY = Activator.getImageDescriptor("icons/ecatalog.png");
-    public static final ImageDescriptor IMAGE_SITE_ENTRY = Activator.getImageDescriptor("icons/siteentry.png");
-    public static final ImageDescriptor IMAGE_SITE_CATALOG_ENTRY = Activator.getImageDescriptor("/icons/scatalog.png");*/
+    /* public static final ImageDescriptor IMAGE_TEMPLATE_BIG = Activator.getImageDescriptor("/icons/Template_big.png");
+     public static final ImageDescriptor IMAGE_ELEMENT_BIG = Activator.getImageDescriptor("/icons/CSElement_big.png");
+     public static final ImageDescriptor IMAGE_ELEMENT_CATALOG_ENTRY_BIG = Activator.getImageDescriptor("/icons/ecatalog_big.png");
+     public static final ImageDescriptor IMAGE_SITE_ENTRY_BIG = Activator.getImageDescriptor("/icons/siteentry_big.png");
+     public static final ImageDescriptor IMAGE_SITE_CATALOG_ENTRY_BIG = Activator.getImageDescriptor("/icons/scatalog_big.png");
+     public static final ImageDescriptor IMAGE_TEMPLATE = Activator.getImageDescriptor("icons/Template.png");
+     public static final ImageDescriptor IMAGE_ELEMENT = Activator.getImageDescriptor("icons/CSElement.png");
+     public static final ImageDescriptor IMAGE_ELEMENT_CATALOG_ENTRY = Activator.getImageDescriptor("icons/ecatalog.png");
+     public static final ImageDescriptor IMAGE_SITE_ENTRY = Activator.getImageDescriptor("icons/siteentry.png");
+     public static final ImageDescriptor IMAGE_SITE_CATALOG_ENTRY = Activator.getImageDescriptor("/icons/scatalog.png");*/
     public static final String RENDERMODE_LIVE = "live";
 
     private Constants() {
@@ -254,6 +253,6 @@ public final class Constants {
     }
 
     public static String getBooleanText(boolean option, String trueText, String falseText) {
-        return option?trueText:falseText;
+        return option ? trueText : falseText;
     }
 }

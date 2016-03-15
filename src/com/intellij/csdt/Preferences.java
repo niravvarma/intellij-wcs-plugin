@@ -1,4 +1,4 @@
-package csdt;
+package com.intellij.csdt;
 
 import com.intellij.openapi.project.Project;
 
@@ -16,9 +16,9 @@ public  class Preferences {
     public static String dataStoreName;
     public static Project project;
 
-    public static Project getProject() {
-        return project;
-    }
+    //public static Project getProject() {
+    //   return project;
+    //}
 
     public static void setProject(Project project) {
         Preferences.project = project;

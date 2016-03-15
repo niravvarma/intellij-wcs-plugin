@@ -1,4 +1,4 @@
-package csdt;
+package com.intellij.csdt;
 
 import COM.FutureTense.Interfaces.Utilities;
 import com.fatwire.cs.core.http.HostConfig;
@@ -11,8 +11,9 @@ import com.fatwire.csdt.service.impl.ListDSService;
 import com.fatwire.csdt.service.util.CSDTServiceUtil;
 import com.fatwire.realtime.packager.FSDataStore;
 import com.fatwire.wem.sso.SSOException;
+import com.intellij.configurations.WebCenterSitesPluginModuleConfigurationData;
+import com.intellij.csdt.util.Constants;
 import com.intellij.openapi.diagnostic.Logger;
-import configurations.WebCenterSitesPluginModuleConfigurationData;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -31,6 +32,11 @@ public class CSDPUtil {
 
     private static Logger LOG = Logger.getInstance(CSDPUtil.class);
     private static boolean isRemote=true;
+    private static WebCenterSitesPluginModuleConfigurationData webCenterSitesPluginModuleConfigurationData;
+
+    public static void setConfigurationData(WebCenterSitesPluginModuleConfigurationData webCenterSitesPluginModuleConfigurationData) {
+        CSDPUtil.webCenterSitesPluginModuleConfigurationData = webCenterSitesPluginModuleConfigurationData;
+    }
 
     private static String map2ResourceStr(Map<String, List<String>> byResType) {
         StringBuilder resources = new StringBuilder();
@@ -94,7 +100,7 @@ public class CSDPUtil {
     private static void updateHashCodeFor(String filename) throws IOException {
        // IPath projectPath = getProjectLocation(getProjectName());
         //String projectLocation = projectPath.toOSString();
-        String fullpath = WebCenterSitesPluginModuleConfigurationData.getWorkspace() + File.separator + filename;
+        String fullpath = getWorkspaceFullPath() + File.separator + filename;
         File mainxml = new File(fullpath + ".main.xml");
         if(mainxml.exists()) {
             int newhash = getHashCodeForFileContents(fullpath);
@@ -246,21 +252,21 @@ public class CSDPUtil {
 
     public static String getPort() {
        // return Activator.getDefault().getPreferenceStore().getString("fw.csport");
-        return WebCenterSitesPluginModuleConfigurationData.getPort();
+        return webCenterSitesPluginModuleConfigurationData.getPort();
     }
 
     public static String getHost() {
     //    return Activator.getDefault().getPreferenceStore().getString("fw.csip");
-        return WebCenterSitesPluginModuleConfigurationData.getHostName();
+        return webCenterSitesPluginModuleConfigurationData.getHostName();
     }
     public static String getUserName() {
        // return Activator.getDefault().getPreferenceStore().getString("fw.username");
-        return WebCenterSitesPluginModuleConfigurationData.getUsername();
+        return webCenterSitesPluginModuleConfigurationData.getUsername();
     }
 
     public static String getPassword() {
       //  return Activator.getDefault().getPreferenceStore().getString("fw.password");
-        return WebCenterSitesPluginModuleConfigurationData.getPassword();
+        return webCenterSitesPluginModuleConfigurationData.getPassword();
     }
 
     public static String getCSUrl() {
@@ -275,7 +281,7 @@ public class CSDPUtil {
     }
     public static String getContext() {
        // return Activator.getDefault().getPreferenceStore().getString("fw.cscontextPath");
-        return WebCenterSitesPluginModuleConfigurationData.getWebContextPath();
+        return webCenterSitesPluginModuleConfigurationData.getWebContextPath();
     }
 
     public static String getBaseUrl(String host, String port, String context) {
@@ -331,12 +337,13 @@ public class CSDPUtil {
     }
     public static String getDatastoreName() {
         //return Activator.getDefault().getPreferenceStore().getString("fw.datastorename");
-     return WebCenterSitesPluginModuleConfigurationData.getDataStoreName();
+        return webCenterSitesPluginModuleConfigurationData.getDataStoreName();
     }
     public static String getWorkspaceFullPath() {
         //IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         //return root.getProject(getProjectName()).getLocationURI().getRawPath();
-       return  WebCenterSitesPluginModuleConfigurationData.getWorkspace();
+        System.out.println("workpsace: " + webCenterSitesPluginModuleConfigurationData.getWorkspace());
+        return webCenterSitesPluginModuleConfigurationData.getWorkspace();
     }
 
     public static String buildQuery(String[]... paramMap) {
@@ -438,6 +445,11 @@ public class CSDPUtil {
         return generateResponse(respStream);
     }
 
+    public static String post(Post request) throws IOException {
+        InputStream respStream = postRequest(request).getResponseBodyAsStream();
+        return generateResponse(respStream);
+    }
+
     private static List<DSKeyInfo> _filterKeys(Set<String> types, List<DSKeyInfo> keys) {
         ArrayList ret = new ArrayList();
         Iterator i$ = types.iterator();
@@ -514,6 +526,19 @@ public class CSDPUtil {
         return "";
     }
 
+    public static String callExport(String assetTag) {
+        String[] split1 = assetTag.split(".*<assetid>");
+        String[] split2 = split1[1].split("</assetid>");
+        String[] typeId = split2[0].split(":");
+        return callExport(typeId[0], typeId[1]);
+    }
+
+    public static String callExport(String type, String id) {
+        HashMap map = new HashMap();
+        map.put(type, Collections.singletonList(id));
+        return callExport(map, null, false);
+    }
+
     private static ArrayList<String[]> _parseResponse(String response) {
         ArrayList retval = new ArrayList();
         if(response != null && response.indexOf("__BEGIN__") >= 0) {
@@ -543,6 +568,13 @@ public class CSDPUtil {
             return retval;
         }
     }
+    /*public static URL getRootFileUrl() throws MalformedURLException, URISyntaxException {
+        return getClass().getClassLoader().getResource("").toURI().toURL();
+       // return webCenterSitesPluginModuleConfigurationData.getContextPath();
+        //return Activator.getDefault().getBundle().getEntry("/");
+    }*/
+
+
 }
 
 

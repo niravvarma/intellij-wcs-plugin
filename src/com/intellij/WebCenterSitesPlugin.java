@@ -1,8 +1,11 @@
-import com.intellij.ide.util.PropertiesComponent;
+package com.intellij;
+
+import com.intellij.configurations.WebCenterSitesPluginModuleConfigurationData;
+import com.intellij.csdt.CSDPUtil;
+import com.intellij.csdt.Preferences;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import configurations.WebCenterSitesPluginModuleConfigurationData;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,10 +26,13 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
     private static Logger LOG = Logger.getInstance(WebCenterSitesPlugin.class);
     private final Project project;
     private PluginConfigurations form;
+    private WebCenterSitesPluginModuleConfigurationData webCenterSitesPluginModuleConfigurationData;
 
     public WebCenterSitesPlugin(Project project) {
+        webCenterSitesPluginModuleConfigurationData = WebCenterSitesPluginModuleConfigurationData.getInstance(project);
         this.project = project;
-        csdt.Preferences.setProject(project);
+        Preferences.setProject(project);
+
     }
 
 
@@ -61,28 +67,28 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
 
         // meta configuration information
         final Element stateElement = new Element("config");
-        stateElement.setAttribute("wcs-plugin-active", String.valueOf(WebCenterSitesPluginModuleConfigurationData.isPluginActive()));
-        if (PropertiesComponent.getInstance().getBoolean("wcs-plugin-active")) {
-            if (PropertiesComponent.getInstance().getValue("wcs-instance") != null) {
-                stateElement.setAttribute("wcs-instance", PropertiesComponent.getInstance().getValue("wcs-instance"));
+        stateElement.setAttribute("wcs-plugin-active", String.valueOf(webCenterSitesPluginModuleConfigurationData.isPluginActive()));
+        if (webCenterSitesPluginModuleConfigurationData.isPluginActive()) {
+            if (webCenterSitesPluginModuleConfigurationData.getInstance() != null) {
+                stateElement.setAttribute("wcs-instance", webCenterSitesPluginModuleConfigurationData.getInstance());
             }
-            if (PropertiesComponent.getInstance().getValue("wcs-module-name") != null) {
-                stateElement.setAttribute("wcs-module-name", PropertiesComponent.getInstance().getValue("wcs-module-name"));
+            if (webCenterSitesPluginModuleConfigurationData.getModuleName() != null) {
+                stateElement.setAttribute("wcs-module-name", webCenterSitesPluginModuleConfigurationData.getModuleName());
             }
-            if (PropertiesComponent.getInstance().getValue("wcs-username") != null) {
-                stateElement.setAttribute("wcs-username", PropertiesComponent.getInstance().getValue("wcs-username"));
+            if (webCenterSitesPluginModuleConfigurationData.getUsername() != null) {
+                stateElement.setAttribute("wcs-username", webCenterSitesPluginModuleConfigurationData.getUsername());
             }
-            if (PropertiesComponent.getInstance().getValue("wcs-password") != null) {
-                stateElement.setAttribute("wcs-password", PropertiesComponent.getInstance().getValue("wcs-password"));
+            if (webCenterSitesPluginModuleConfigurationData.getPassword() != null) {
+                stateElement.setAttribute("wcs-password", webCenterSitesPluginModuleConfigurationData.getPassword());
             }
-            if (PropertiesComponent.getInstance().getValue("wcs-context-path") != null) {
-                stateElement.setAttribute("wcs-context-path", PropertiesComponent.getInstance().getValue("wcs-context-path"));
+            if (webCenterSitesPluginModuleConfigurationData.getContextPath() != null) {
+                stateElement.setAttribute("wcs-context-path", webCenterSitesPluginModuleConfigurationData.getContextPath());
             }
-            if (PropertiesComponent.getInstance().getValue("wcs-workspace") != null) {
-                stateElement.setAttribute("wcs-workspace", PropertiesComponent.getInstance().getValue("wcs-workspace"));
+            if (webCenterSitesPluginModuleConfigurationData.getWorkspace() != null) {
+                stateElement.setAttribute("wcs-workspace", webCenterSitesPluginModuleConfigurationData.getWorkspace());
             }
-            if (PropertiesComponent.getInstance().getValue("wcs-datastore") != null) {
-                stateElement.setAttribute("wcs-datastore", PropertiesComponent.getInstance().getValue("wcs-datastore"));
+            if (webCenterSitesPluginModuleConfigurationData.getDataStoreName() != null) {
+                stateElement.setAttribute("wcs-datastore", webCenterSitesPluginModuleConfigurationData.getDataStoreName());
             }
         }
         element.addContent(stateElement);
@@ -115,15 +121,16 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
                 "\ndatastore: " + datastore
         );
 
-        WebCenterSitesPluginModuleConfigurationData.setPluginActive(Boolean.valueOf(pluginActive));
-        if (WebCenterSitesPluginModuleConfigurationData.isPluginActive()) {
-            WebCenterSitesPluginModuleConfigurationData.setInstance(instance);
-            WebCenterSitesPluginModuleConfigurationData.setModuleName(moduleName);
-            WebCenterSitesPluginModuleConfigurationData.setUsername(username);
-            WebCenterSitesPluginModuleConfigurationData.setPassword(password);
-            WebCenterSitesPluginModuleConfigurationData.setContextPath(contextPath);
-            WebCenterSitesPluginModuleConfigurationData.setWorkspace(workspace);
-            WebCenterSitesPluginModuleConfigurationData.setDataStoreName(datastore);
+        webCenterSitesPluginModuleConfigurationData.setPluginActive(Boolean.valueOf(pluginActive));
+        if (webCenterSitesPluginModuleConfigurationData.isPluginActive()) {
+            webCenterSitesPluginModuleConfigurationData.setInstance(instance);
+            webCenterSitesPluginModuleConfigurationData.setModuleName(moduleName);
+            webCenterSitesPluginModuleConfigurationData.setUsername(username);
+            webCenterSitesPluginModuleConfigurationData.setPassword(password);
+            webCenterSitesPluginModuleConfigurationData.setContextPath(contextPath);
+            webCenterSitesPluginModuleConfigurationData.setWorkspace(workspace);
+            webCenterSitesPluginModuleConfigurationData.setDataStoreName(datastore);
+            CSDPUtil.setConfigurationData(webCenterSitesPluginModuleConfigurationData);
         }
     }
 }

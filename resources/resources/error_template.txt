@@ -1,0 +1,19 @@
+<html>
+<head>
+</head>
+<body>
+<h3>Reference not found</h3>
+<p>
+The reference can not be found at location #CS_INSTALLDIR#/developerdocs/.<br>
+Please follow the steps below to install the documentation.
+</p> 
+<p>
+<ol>
+<li><em>Download the Tag Reference and javadoc from <a href="http://docs.oracle.com" target="_blank">Oracle Documentation</a>.</li><br>
+<li><em>Create a folder named "developerdocs" in location specified above.</li><br>
+<li><em>Extract the TagReference.zip and javadoc.zip inside the "developerdocs" folder.</li><br>
+<li><em>Click the "Home" button to refresh the javadocs and tag reference tabs.</li><br>
+</ol>
+</p>
+</body>
+</html>
