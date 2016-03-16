@@ -18,6 +18,7 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.regex.PatternSyntaxException;
  */
 public class SyncWindowForm extends JDialog {
     private static Logger LOG = Logger.getInstance(SyncWindowForm.class);
+    private SyncWindowForm syncWindowForm;
     private Project project;
     private JPanel mainPanel;
     private JTabbedPane tabbedPane1;
@@ -51,13 +53,10 @@ public class SyncWindowForm extends JDialog {
     public SyncWindowForm(Project project) {
         this.project = project;
     }
-    public SyncWindowForm() {
+
+    public SyncWindowForm(final JFrame frame) {
         LOG.debug("Initializing Sync Window form");
-        updateCSTable();
-        updateDSTable();
-//        project = Preferences.getProject();
-
-
+        syncWindowForm = this;
 
         setTitle("Oracle WebCenter Sites Synchronization tool");
         setContentPane(mainPanel);
@@ -113,7 +112,20 @@ public class SyncWindowForm extends JDialog {
                 syncToWebCenterSites();
             }
         });
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Loading Synchronization tool") {
+            public void run(@NotNull ProgressIndicator progressIndicator) {
+                LOG.debug("Background updating CSTable");
+                updateCSTable();
+                LOG.debug("Background updating DSTable");
+                updateDSTable();
+            }
 
+            public void onSuccess() {
+                LOG.debug("Background Loading Synchronization tool task Success");
+                syncWindowForm.display(frame);
+            }
+
+        });
 
     }
 
@@ -263,16 +275,19 @@ public class SyncWindowForm extends JDialog {
 
     public void refresh() {
         pack();
-        setLocationRelativeTo(relativeContainer);
+        setLocationRelativeTo(null);
     }
 
     public void display(Container relativeContainer) {
         this.relativeContainer = relativeContainer;
+        URL iconURL = getClass().getClassLoader().getResource("icons/sync.gif");
+        ImageIcon icon = new ImageIcon(iconURL);
+        setIconImage(icon.getImage());
         refresh();
         setMinimumSize(new Dimension(900, 600));
         setVisible(true);
-    }
 
+    }
 
     public JPanel getMainPanel() {
         return mainPanel;

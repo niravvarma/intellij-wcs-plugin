@@ -52,8 +52,8 @@
     </component>
   </project-components>
   <actions>
-    <group id="MenuGroup" text="WCS Plugin" popup="true"
-           class="com.intellij.actions.MenuGroup">
+    <group id="MenuGroup" text="WebCenter Sites Plugin" popup="true"
+           class="com.intellij.actions.MenuGroup" icon="/icons/sites.gif">
       <add-to-group anchor="first" group-id="ToolsMenu"/>
     </group>
     <!-- <action id="wcs-plugin-sync" class="com.intellij.SyncForm" text="Synchronize Data with WebCenter Sites"

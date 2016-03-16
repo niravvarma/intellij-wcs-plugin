@@ -6,6 +6,7 @@ import com.intellij.csdt.CSDPUtil;
 import com.intellij.csdt.Template;
 import com.intellij.csdt.util.WizardUtil;
 import com.intellij.csdt.valueobject.enumeration.ContentTemplates;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.apache.commons.lang.StringUtils;
 
@@ -22,6 +23,8 @@ import java.net.URISyntaxException;
  * Created by NB20308 on 15/03/2016.
  */
 public class NewElementCatalog extends JDialog {
+
+    private static Logger LOG = Logger.getInstance(NewElementCatalog.class);
     private Project project;
     private JTextField textFieldElementCatalogName;
     private ButtonGroup buttonGroup1;
@@ -45,7 +48,7 @@ public class NewElementCatalog extends JDialog {
     public NewElementCatalog() {
 
 
-        setTitle("Oracle WebCenter Sites Synchronization tool");
+        setTitle("Oracle WebCenter Sites New Element");
         setContentPane(mainPanel);
         setModal(true);
 
@@ -105,22 +108,27 @@ public class NewElementCatalog extends JDialog {
                     }*/
 
                     try {
-                        e3 = WizardUtil.saveElementCatalog(serviceObject);
-                        if (e3.contains("Save Error")) {
+                        String saveElementCatalogOutput = WizardUtil.saveElementCatalog(serviceObject);
+                        if (saveElementCatalogOutput.contains("Save Error")) {
+                            LOG.error("Save Error", saveElementCatalogOutput);
                             //   MessageDialog.openError(shell, "Error while saving Element Catalog Entry", "Error while saving Template");
-                        } else if (e3.contains("Insufficient Privileges")) {
+                        } else if (saveElementCatalogOutput.contains("Insufficient Privileges")) {
+                            LOG.error("Insufficient Privileges", saveElementCatalogOutput);
                             //MessageDialog.openError(shell, "Error while saving Element Catalog Entry", "You do not have sufficient privileges to perform this operation");
-                        } else if (e3.contains("Login Error")) {
+                        } else if (saveElementCatalogOutput.contains("Login Error")) {
+                            LOG.error("Error while saving Element Catalog Entry", "Please review the credentials configured in your preferences", saveElementCatalogOutput);
                             //  MessageDialog.openError(shell, "Error while saving Element Catalog Entry", "Please review the credentials configured in your preferences");
                         } else {
-                            CSDPUtil.callExport(e3);
+                            String output = CSDPUtil.callExport(saveElementCatalogOutput);
+                            LOG.info("ouput: " + output);
                            /* CSDPUtil.openElement(workbench, uiObject);
                             CSDPUtil.refreshTree();
                             CSDPUtil.refreshIResource();*/
                         }
                     } catch (SSOException var14) {
-                        //handleException(shell, var14);
+                        LOG.error("SSOException", var14);
                     } catch (IOException var15) {
+                        LOG.error("IOException", var15);
                         //handleException(shell, var15);
                     } finally {
                         /*if(monitor != null) {
@@ -130,29 +138,16 @@ public class NewElementCatalog extends JDialog {
 
                     }
 
-              /*  request.addParameter("name", textFieldElementCatalogName.getText());
-                request.addParameter("description", textFieldElementCatalogDescription.getText());
-                request.addParameter("url_file", textFieldElementCatalogStoragePath.getText());
-                request.addParameter("url_folder", valObj.getText());
-                request.addParameter("urlspec", valObj.getText());
-                request.addParameter("url", valObj.getUrl());
-                request.addParameter("resdetails1", textFieldElementCatalogElementParameter.getResdetails1());
-                request.addParameter("resdetails2", textFieldElementCatalogAdditionalParameters.getResdetails2());
-                request.addParameter("datastore", CSDPUtil.getDatastoreName());
-                    String output=CSDPUtil.post(request);
-                    System.out.println("output:" +output);*/
-
                 } catch (SSOException e1) {
-                    e1.printStackTrace();
+                    LOG.error("SSOException", e1);
                 }
 
             }
         });
-
         textFieldElementCatalogName.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyTyped(KeyEvent e) {
-                super.keyTyped(e);
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
                 textFieldElementCatalogStoragePath.setText(textFieldElementCatalogName.getText() + ".jsp");
             }
         });
