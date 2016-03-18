@@ -3,7 +3,7 @@ package com.intellij.actions;
 import com.intellij.SyncWindowForm;
 import com.intellij.configurations.WebCenterSitesPluginModuleConfigurationData;
 import com.intellij.forms.NewElementCatalog;
-import com.intellij.forms.NewTemplate;
+import com.intellij.forms.newtemplate.NewTemplateStep1;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.WindowManager;
@@ -74,7 +74,7 @@ public class MenuGroup extends ActionGroup {
             public void actionPerformed(AnActionEvent event) {
                 Project project = event.getData(PlatformDataKeys.PROJECT);
                 JFrame frame = WindowManager.getInstance().getFrame(project);
-                final NewTemplate newElementCatalog = new NewTemplate(frame);
+                final NewTemplateStep1 newElementCatalog = new NewTemplateStep1(frame);
             }
 
             @Override

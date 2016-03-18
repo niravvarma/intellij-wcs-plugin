@@ -1,5 +1,4 @@
 package com.intellij.csdt;
-
 import COM.FutureTense.Interfaces.Utilities;
 import com.fatwire.cs.core.http.HostConfig;
 import com.fatwire.cs.core.http.HttpAccess;
@@ -10,8 +9,12 @@ import com.fatwire.cs.core.realtime.DataException;
 import com.fatwire.csdt.service.impl.ListDSService;
 import com.fatwire.csdt.service.util.CSDTServiceUtil;
 import com.fatwire.realtime.packager.FSDataStore;
+import com.fatwire.rest.beans.EnabledType;
+import com.fatwire.rest.beans.Type;
+import com.fatwire.rest.beans.UserSite;
 import com.fatwire.wem.sso.SSOException;
 import com.intellij.configurations.WebCenterSitesPluginModuleConfigurationData;
+import com.intellij.csdt.rest.RestProvider;
 import com.intellij.csdt.util.Constants;
 import com.intellij.openapi.diagnostic.Logger;
 import org.apache.commons.io.IOUtils;
@@ -568,13 +571,185 @@ public class CSDPUtil {
             return retval;
         }
     }
+
+    public static String[] getUserSitenames() {
+        return getUserSitenames(1);
+    }
+
+    public static String[] getUserSitenames(int sortOrder) {
+        List userSites = RestProvider.getUserSites(getUserName());
+        List siteNames = getNames(userSites, new CSDPUtil.NameExtractor() {
+
+            @Override
+            public String getName(Object userSite) {
+                return ((UserSite) userSite).getSite();
+            }
+        });
+        sort(sortOrder, siteNames);
+        return (String[]) siteNames.toArray(new String[0]);
+    }
+
+    public static <T> List<String> getNames(List<T> source, CSDPUtil.NameExtractor<T> n) {
+        ArrayList names = new ArrayList();
+        if (source != null) {
+            Iterator i$ = source.iterator();
+
+            while (i$.hasNext()) {
+                T each = (T) i$.next();
+                names.add(n.getName(each));
+            }
+        }
+
+        return names;
+    }
+
+    public static String[] getACLS() {
+        ArrayList acls = new ArrayList();
+        acls.add("Any");
+        acls.addAll(RestProvider.getACLs());
+        return (String[]) acls.toArray(new String[0]);
+    }
+
+    public static String getRESTServletUrl() {
+        return getRESTServletUrl(getBaseUrl());
+    }
+
+    public static String getRESTServletUrl(String baseUrl) {
+        return baseUrl + "/" + "REST";
+    }
+
+    public static void sort(int sortOrder, List<String> source) {
+        if (sortOrder != 0) {
+            Collections.sort(source);
+            if (sortOrder < 0) {
+                Collections.reverse(source);
+            }
+        }
+
+    }
+
+    public static <T> String delimited(CharSequence delimiter, List<T> values) {
+        return delimited(delimiter, values, null);
+    }
+
+    public static <T> String delimited(CharSequence delimiter, List<T> values, CSDPUtil.NameExtractor<T> extractor) {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        T each;
+        if (values != null) {
+            for (Iterator i$ = values.iterator(); i$.hasNext(); sb.append(extractor == null ? each : extractor.getName(each))) {
+                each = (T) i$.next();
+                if (first) {
+                    first = false;
+                } else {
+                    sb.append(delimiter);
+                }
+            }
+        }
+
+        return sb.toString();
+    }
+
+    public static String buildPagenameFromRootElement(String siteName, String rootElementName) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(siteName);
+        if (StringUtils.isBlank(rootElementName)) {
+            return "";
+        } else {
+            if (!rootElementName.startsWith("/")) {
+                sb.append("/");
+            }
+
+            sb.append(rootElementName);
+            return sb.toString();
+        }
+    }
+
+    public static String buildRootElement(String templateName, String assetType) {
+        String assetTypeName = isTypeless(assetType) ? "" : assetType;
+        return StringUtils.isBlank(templateName) ? "" : assetTypeName + "/" + templateName;
+    }
+
+    public static boolean isTypeless(String assetType) {
+        return StringUtils.isBlank(assetType);
+    }
+
+    public static String buildStoragePath(String rootElementName, com.fatwire.csdt.valueobject.enumeration.ElementFileType elementType) {
+        if (!StringUtils.isBlank(rootElementName) && elementType != null) {
+            String elementName = rootElementName;
+            if (rootElementName.startsWith("/")) {
+                elementName = rootElementName.substring(1);
+            }
+
+            String storagePath = elementName + elementType.extension();
+            return sanitize(storagePath);
+        } else {
+            return "";
+        }
+    }
+
+    public static String sanitize(String raw) {
+        raw = raw.replaceAll("/\\s*/+", "/");
+        return raw.replace("/", File.separator);
+    }
+
+    public static List<String> getAllAssetTypes() {
+        return getNames(RestProvider.getAllAssetTypes(), new CSDPUtil.NameExtractor() {
+            @Override
+            public String getName(Object type) {
+                return ((Type) type).getName();
+            }
+
+        });
+    }
+
+    public static String[] addDefault(String[] source, String defaultValue) {
+        if (defaultValue == null) {
+            return source;
+        } else {
+            ArrayList list = new ArrayList(Arrays.asList(source));
+            list.add(0, defaultValue);
+            return (String[]) list.toArray(new String[0]);
+        }
+    }
+
+    public static String[] getEnabledTypesForSite(String siteName) {
+        List<String> allTypeNames = getAllAssetTypes();
+        List<String> enabledTypeNames = getNames(RestProvider.getEnabledTypes(siteName), new CSDPUtil.NameExtractor() {
+            @Override
+            public String getName(Object type) {
+                return ((EnabledType) type).getName();
+            }
+        });
+        ArrayList types = new ArrayList(enabledTypeNames);
+        types.retainAll(allTypeNames);
+        return (String[]) types.toArray(new String[0]);
+    }
+
+    public static String[] getAssetSubTypes(List<Type> types, String assetType) {
+        if (StringUtils.isNotBlank(assetType)) {
+            Iterator i$ = types.iterator();
+
+            while (i$.hasNext()) {
+                Type each = (Type) i$.next();
+                if (assetType.equals(each.getName())) {
+                    return each.getSubtypes().toArray(new String[0]);
+                }
+            }
+        }
+
+        return new String[0];
+    }
+
     /*public static URL getRootFileUrl() throws MalformedURLException, URISyntaxException {
         return getClass().getClassLoader().getResource("").toURI().toURL();
        // return webCenterSitesPluginModuleConfigurationData.getContextPath();
         //return Activator.getDefault().getBundle().getEntry("/");
     }*/
 
-
+    public interface NameExtractor<T> {
+        String getName(T var1);
+    }
 }
 
 

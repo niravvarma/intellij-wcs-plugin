@@ -112,6 +112,7 @@ public class SyncWindowForm extends JDialog {
                 syncToWebCenterSites();
             }
         });
+
         ProgressManager.getInstance().run(new Task.Backgroundable(project, "Loading Synchronization tool") {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 LOG.debug("Background updating CSTable");
