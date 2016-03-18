@@ -55,6 +55,7 @@ public class NewTemplateStep1 extends JDialog {
     private JPanel mainPanel;
     private JLabel errorLabel;
     private List<com.fatwire.rest.beans.Type> allTypes;
+    private NewTemplateStep2 newTemplateStep2;
 
     public NewTemplateStep1(Project project) {
         this.project = project;
@@ -186,8 +187,13 @@ public class NewTemplateStep1 extends JDialog {
                 LOG.info("clicked next buton");
                 newTemplateStep1.setVisible(false);
 //                Project project = event.getData(PlatformDataKeys.PROJECT);
-                JFrame frame = WindowManager.getInstance().getFrame(project);
-                final NewTemplateStep2 newElementCatalog = new NewTemplateStep2(frame, newTemplateStep1);
+                if (newTemplateStep2 == null) {
+                    JFrame frame = WindowManager.getInstance().getFrame(project);
+                    final NewTemplateStep2 newElementCatalog = new NewTemplateStep2(frame, project, newTemplateStep1);
+                } else {
+                    newTemplateStep2.setVisible(true);
+                }
+
 
             }
         });
@@ -269,5 +275,11 @@ public class NewTemplateStep1 extends JDialog {
         setVisible(true);
     }
 
+    public NewTemplateStep2 getNewTemplateStep2() {
+        return newTemplateStep2;
+    }
 
+    public void setNewTemplateStep2(NewTemplateStep2 newTemplateStep2) {
+        this.newTemplateStep2 = newTemplateStep2;
+    }
 }

@@ -1,6 +1,9 @@
 package com.intellij.forms.newtemplate;
 
 
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.WindowManager;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -31,11 +34,12 @@ public class NewTemplateStep2 extends JDialog {
     private JList list1;
     private JTextField true0TextField;
     private JTextField true0TextField1;
+    private NewTemplateStep3 newTemplateStep3;
 
-    public NewTemplateStep2(JFrame frame, final NewTemplateStep1 newTemplateStep1) {
+    public NewTemplateStep2(JFrame frame, final Project project, final NewTemplateStep1 newTemplateStep1) {
         this.newTemplateStep2 = this;
         this.newTemplateStep1 = newTemplateStep1;
-
+        newTemplateStep1.setNewTemplateStep2(this);
         setTitle("New Template");
         setContentPane(mainPanel);
         setModal(true);
@@ -48,6 +52,23 @@ public class NewTemplateStep2 extends JDialog {
                 newTemplateStep1.setVisible(true);
             }
         });
+
+        nextButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                newTemplateStep2.setVisible(false);
+//                Project project = event.getData(PlatformDataKeys.PROJECT);
+                if (newTemplateStep3 == null) {
+                    JFrame frame = WindowManager.getInstance().getFrame(project);
+                    final NewTemplateStep3 newElementCatalog = new NewTemplateStep3(frame, project, newTemplateStep2);
+                } else {
+                    newTemplateStep3.setVisible(true);
+                }
+
+
+            }
+        });
+
         newTemplateStep2.display(frame);
     }
 
@@ -59,7 +80,14 @@ public class NewTemplateStep2 extends JDialog {
     public void display(Container relativeContainer) {
         refresh();
         setResizable(false);
-        setMinimumSize(new Dimension(650, 320));
         setVisible(true);
+    }
+
+    public NewTemplateStep3 getNewTemplateStep3() {
+        return newTemplateStep3;
+    }
+
+    public void setNewTemplateStep3(NewTemplateStep3 newTemplateStep3) {
+        this.newTemplateStep3 = newTemplateStep3;
     }
 }
