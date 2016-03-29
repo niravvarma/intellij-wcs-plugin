@@ -1,11 +1,13 @@
 package com.intellij.forms.newtemplate;
 
+import com.fatwire.csdt.valueobject.ui.Template;
 import com.intellij.openapi.project.Project;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 
 /**
  * Created by NB20308 on 18/03/2016.
@@ -23,15 +25,22 @@ public class NewTemplateStep3 extends JDialog {
     private JButton editParameterButton;
     private JButton removeParametersButton;
 
-    public NewTemplateStep3(JFrame frame, Project project, final NewTemplateStep2 newTemplateStep2) {
+    public NewTemplateStep3(JFrame frame, final Project project, final Template template, final NewTemplateStep2 newTemplateStep2) {
+        setTitle("New Template");
         this.newTemplateStep3 = this;
         this.newTemplateStep2 = newTemplateStep2;
 
         newTemplateStep2.setNewTemplateStep3(this);
-        setTitle("New Template");
         setContentPane(mainPanel);
         setModal(true);
 
+        finishButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                CreateTemplate.createTemplate(project, template);
+            }
+        });
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -40,6 +49,15 @@ public class NewTemplateStep3 extends JDialog {
                 newTemplateStep2.setVisible(true);
             }
         });
+
+
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+
         newTemplateStep3.display(frame);
     }
 
@@ -51,7 +69,11 @@ public class NewTemplateStep3 extends JDialog {
 
     public void display(Container relativeContainer) {
         refresh();
+        URL iconURL = getClass().getClassLoader().getResource("icons/newtemplate_wiz.gif");
+        ImageIcon icon = new ImageIcon(iconURL);
+        setIconImage(icon.getImage());
         setResizable(false);
+        setSize(new Dimension(650, 600));
         setVisible(true);
     }
 

@@ -30,7 +30,7 @@ public class MenuGroup extends ActionGroup {
             public void actionPerformed(AnActionEvent event) {
                 Project project = event.getData(PlatformDataKeys.PROJECT);
                 JFrame frame = WindowManager.getInstance().getFrame(project);
-                final SyncWindowForm syncWindowForm = new SyncWindowForm(frame);
+                final SyncWindowForm syncWindowForm = new SyncWindowForm(project, frame);
 
             }
 

@@ -54,7 +54,8 @@ public class SyncWindowForm extends JDialog {
         this.project = project;
     }
 
-    public SyncWindowForm(final JFrame frame) {
+    public SyncWindowForm(Project project, final JFrame frame) {
+        this.project = project;
         LOG.debug("Initializing Sync Window form");
         syncWindowForm = this;
 
@@ -113,7 +114,7 @@ public class SyncWindowForm extends JDialog {
             }
         });
 
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Loading Synchronization tool") {
+        ProgressManager.getInstance().run(new Task.Backgroundable(SyncWindowForm.this.project, "Loading Synchronization tool") {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 LOG.debug("Background updating CSTable");
                 updateCSTable();
@@ -223,6 +224,7 @@ public class SyncWindowForm extends JDialog {
             public void onSuccess() {
                 LOG.debug("Background export task Success");
                 Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Success", "Successfully exported from WebCenter Sites", NotificationType.INFORMATION));
+                project.getBaseDir().refresh(false, true);
             }
 
         });

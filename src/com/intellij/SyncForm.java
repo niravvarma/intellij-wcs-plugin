@@ -21,7 +21,7 @@ public class SyncForm extends AnAction {
     public void actionPerformed(AnActionEvent event) {
         Project project = event.getData(PlatformDataKeys.PROJECT);
         JFrame frame = WindowManager.getInstance().getFrame(project);
-        final SyncWindowForm syncWindowForm = new SyncWindowForm(frame);
+        final SyncWindowForm syncWindowForm = new SyncWindowForm(project, frame);
         syncWindowForm.display(frame);
     }
 

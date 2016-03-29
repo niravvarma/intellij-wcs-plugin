@@ -8,8 +8,10 @@ import com.fatwire.cs.core.realtime.DSKeyInfo;
 import com.fatwire.cs.core.realtime.DataException;
 import com.fatwire.csdt.service.impl.ListDSService;
 import com.fatwire.csdt.service.util.CSDTServiceUtil;
+import com.fatwire.csdt.valueobject.service.MapParameter;
 import com.fatwire.realtime.packager.FSDataStore;
 import com.fatwire.rest.beans.EnabledType;
+import com.fatwire.rest.beans.SiteBean;
 import com.fatwire.rest.beans.Type;
 import com.fatwire.rest.beans.UserSite;
 import com.fatwire.wem.sso.SSOException;
@@ -498,6 +500,7 @@ public class CSDPUtil {
                         BufferedOutputStream var23 = new BufferedOutputStream(new FileOutputStream(tempfile));
                         ds.stream(var21, includeDeps, var23);
                         IOUtils.closeQuietly(var23);
+                        LOG.info("var23: " + var23);
                         e.addMultipartData("__CSDTDSItem", "__CSDTDSItem", tempfile.getCanonicalPath());
                         break;
                     }
@@ -746,7 +749,40 @@ public class CSDPUtil {
        // return webCenterSitesPluginModuleConfigurationData.getContextPath();
         //return Activator.getDefault().getBundle().getEntry("/");
     }*/
+    public static String getPubId(String pubName) {
+        return String.valueOf(RestProvider.getSite(pubName).getId());
+    }
 
+    public static String getPubName(String pubId) {
+        if (StringUtils.isNotBlank(pubId)) {
+            List usersites = RestProvider.getUserSites(getUserName());
+            Iterator i$ = usersites.iterator();
+
+            while (i$.hasNext()) {
+                UserSite each = (UserSite) i$.next();
+                String sitename = each.getSite();
+                SiteBean siteBean = RestProvider.getSite(sitename);
+                if (pubId.equals(String.valueOf(siteBean.getId()))) {
+                    return sitename;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static String buildMapParameterString(MapParameter p) {
+        StringBuilder sb = new StringBuilder();
+        if (p != null) {
+            sb.append(p.getKey()).append("#");
+            sb.append(p.getValue()).append("#");
+            sb.append(p.getType().parameter()).append("#");
+            String siteId = getPubId(p.getSite());
+            sb.append(siteId);
+        }
+
+        return sb.toString();
+    }
     public interface NameExtractor<T> {
         String getName(T var1);
     }
