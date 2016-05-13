@@ -22,6 +22,7 @@ public class WebCenterSitesPluginModuleConfigurationData {
     private boolean pluginActive;
     private boolean configValid;
     private String instance;
+    private String resourceString;
 
     public static WebCenterSitesPluginModuleConfigurationData getInstance(Project project) {
         return ServiceManager.getService(project, WebCenterSitesPluginModuleConfigurationData.class);
@@ -148,5 +149,13 @@ public class WebCenterSitesPluginModuleConfigurationData {
 
     public void setConfigValid(boolean configValid) {
         this.configValid = configValid;
+    }
+
+    public String getResourceString() {
+        return resourceString;
+    }
+
+    public void setResourceString(String resourceString) {
+        this.resourceString = resourceString;
     }
 }

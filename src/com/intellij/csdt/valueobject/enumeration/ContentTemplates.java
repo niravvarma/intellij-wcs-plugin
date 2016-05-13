@@ -6,6 +6,7 @@
 package com.intellij.csdt.valueobject.enumeration;
 
 import com.intellij.csdt.util.Constants;
+import com.intellij.openapi.diagnostic.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,6 +29,7 @@ public enum ContentTemplates {
     HELP("resources/help_template.txt"),
     ERROR("resources/error_template.txt");
 
+    private static Logger LOG = Logger.getInstance(ContentTemplates.class);
     private String defaultContent;
 
     ContentTemplates(String defaultContent) {
@@ -39,8 +41,8 @@ public enum ContentTemplates {
 
         try {
             StringBuilder e = new StringBuilder();
-            URL fileUrl = getClass().getClassLoader().getResource("").toURI().toURL();
-            URL file = new URL(fileUrl, /*"resources/" +*/ this.defaultContent);
+
+            URL file = getClass().getClassLoader().getResource(this.defaultContent).toURI().toURL();
             InputStream inputStream = file.openStream();
             reader = new BufferedReader(new InputStreamReader(inputStream));
             String tempStr = null;

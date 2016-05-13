@@ -1,5 +1,7 @@
 package com.intellij;
 
+import com.fatwire.wem.sso.SSOException;
+import com.intellij.configurations.WebCenterSitesPluginModuleConfigurationData;
 import com.intellij.csdt.CSDPUtil;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -9,7 +11,10 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogWrapper;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -18,18 +23,17 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.IOException;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.PatternSyntaxException;
 
 /**
  * Created by NB20308 on 04/01/2016.
  */
-public class SyncWindowForm extends JDialog {
+public class SyncWindowForm extends DialogWrapper {
     private static Logger LOG = Logger.getInstance(SyncWindowForm.class);
+    private WebCenterSitesPluginModuleConfigurationData webCenterSitesPluginModuleConfigurationData;
     private SyncWindowForm syncWindowForm;
     private Project project;
     private JPanel mainPanel;
@@ -50,18 +54,29 @@ public class SyncWindowForm extends JDialog {
     private JButton helpButton1;
     private Container relativeContainer;
 
-    public SyncWindowForm(Project project) {
-        this.project = project;
-    }
 
     public SyncWindowForm(Project project, final JFrame frame) {
+        super(project);
         this.project = project;
+        webCenterSitesPluginModuleConfigurationData = WebCenterSitesPluginModuleConfigurationData.getInstance(project);
+
         LOG.debug("Initializing Sync Window form");
         syncWindowForm = this;
 
         setTitle("Oracle WebCenter Sites Synchronization tool");
-        setContentPane(mainPanel);
-        setModal(true);
+
+        init();
+//        URL iconURL = getClass().getClassLoader().getResource("icons/sync.gif");
+//        ImageIcon icon = new ImageIcon(iconURL);
+//        setIconImage(icon.getImage());
+//        set
+//        setContentPane(mainPanel);
+//        setModalityType(ModalityType.DOCUMENT_MODAL);
+//        setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
+//        setModal(true);
+//        setUndecorated(true);
+//        setFocusableWindowState(false);
+//        setAutoRequestFocus(true);
 
         csSyncToWorkspacetextField.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -70,6 +85,7 @@ public class SyncWindowForm extends JDialog {
         });
         csSearchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                saveResourcesString(csSyncToWorkspacetextField.getText());
                 updateCSTable();
             }
         });
@@ -114,6 +130,9 @@ public class SyncWindowForm extends JDialog {
             }
         });
 
+        csSyncToWorkspacetextField.setText(StringUtils.defaultIfEmpty(webCenterSitesPluginModuleConfigurationData.getResourceString(), "Template,CSElement,SiteEntry,@ELEMENTCATALOG"));
+
+
         ProgressManager.getInstance().run(new Task.Backgroundable(SyncWindowForm.this.project, "Loading Synchronization tool") {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 LOG.debug("Background updating CSTable");
@@ -124,11 +143,27 @@ public class SyncWindowForm extends JDialog {
 
             public void onSuccess() {
                 LOG.debug("Background Loading Synchronization tool task Success");
-                syncWindowForm.display(frame);
+                show();
             }
 
         });
 
+    }
+
+    @Nullable
+    @Override
+    protected JComponent createCenterPanel() {
+        return mainPanel;
+    }
+
+    @Override
+    @Nullable
+    protected JComponent createSouthPanel() {
+        return null;
+    }
+
+    private void saveResourcesString(String s) {
+        webCenterSitesPluginModuleConfigurationData.setResourceString(s);
     }
 
     private void filterTableWithRegex(final JTable table, String regex) {
@@ -174,19 +209,29 @@ public class SyncWindowForm extends JDialog {
                     progressIndicator.setFraction(0.33);
                     progressIndicator.setText("Syncing to WCS");
                     String result = CSDPUtil.callImport(csHashMap, null, true);
+                    String resultWithoutSpaces = result.replaceAll("(?m)^[ \t]*\r?\n", "");
                     LOG.info("Import complete");
-                    LOG.debug("result: " + result.replaceAll("(?m)^[ \t]*\r?\n", ""));
+                    LOG.debug("result: " + resultWithoutSpaces);
                     // Finished
                     progressIndicator.setFraction(1.0);
                     progressIndicator.setText("Done");
-                } catch (Exception exception) {
-                    LOG.error("Import Exception: " + exception);
-                }
-            }
+                    LOG.debug("Background export task Success");
+//                    if(resultWithoutSpaces.contains("Success")) {
+                    Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Success", "Successfully imported to WebCenter Sites", NotificationType.INFORMATION), project);
 
-            public void onSuccess() {
-                LOG.debug("Background export task Success");
-                Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Success", "Successfully imported to WebCenter Sites", NotificationType.INFORMATION));
+//                    }else{
+//                        Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Error", "Import did not finished with success<br>Please check WebCenter Sites logs", NotificationType.ERROR), project);
+//                        LOG.error(resultWithoutSpaces);
+//                    }
+                    project.getBaseDir().refresh(false, true);
+                } catch
+                        (IOException exception) {
+                    LOG.debug("SSOException", exception);
+                    Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Error opening the New Template Window", "Is Oracle WebCenter Sites running?<br>" + exception.getLocalizedMessage(), NotificationType.ERROR), project);
+                } catch (SSOException exception) {
+                    LOG.debug("IOException", exception);
+                    Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Error opening the New Template Window", exception.getLocalizedMessage(), NotificationType.ERROR), project);
+                }
             }
         });
     }
@@ -211,20 +256,27 @@ public class SyncWindowForm extends JDialog {
                     progressIndicator.setFraction(0.33);
                     progressIndicator.setText("Syncing from WCS");
                     String result = CSDPUtil.callExport(csHashMap, null, true);
+                    String resultWithoutSpaces = result.replaceAll("(?m)^[ \t]*\r?\n", "");
                     LOG.info("Export complete");
-                    LOG.debug("result: " + result.replaceAll("(?m)^[ \t]*\r?\n", ""));
+                    LOG.debug("result: " + resultWithoutSpaces);
                     // Finished
                     progressIndicator.setFraction(1.0);
                     progressIndicator.setText("Done");
-                } catch (Exception exception) {
-                    LOG.error("Export Exception: " + exception);
-                }
-            }
 
-            public void onSuccess() {
-                LOG.debug("Background export task Success");
-                Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Success", "Successfully exported from WebCenter Sites", NotificationType.INFORMATION));
-                project.getBaseDir().refresh(false, true);
+//                    if(resultWithoutSpaces.contains("Success")) {
+                    LOG.debug("Exported with Success");
+                    Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Success", "Successfully exported from WebCenter Sites", NotificationType.INFORMATION), project);
+//                    }else{
+//                        Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Error", "Export did not finished with success<br>Please check WebCenter Sites logs", NotificationType.ERROR), project);
+//                        LOG.error(resultWithoutSpaces);
+//                    }
+
+                    project.getBaseDir().refresh(false, true);
+
+                } catch (Exception exception) {
+                    LOG.debug("Export Exception: " + exception);
+                    Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Error", "Export did not finished with success", NotificationType.ERROR), project);
+                }
             }
 
         });
@@ -249,7 +301,14 @@ public class SyncWindowForm extends JDialog {
         }
         table.setModel(tableModel);
 
-        table.setRowSorter(new TableRowSorter<TableModel>(tableModel));
+        TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tableModel);
+        table.setRowSorter(sorter);
+
+        List<RowSorter.SortKey> sortKeys = new ArrayList<>();
+        int columnIndexToSort = Arrays.asList(col).indexOf("Modified Date");
+        sortKeys.add(new RowSorter.SortKey(columnIndexToSort, SortOrder.DESCENDING));
+        sorter.setSortKeys(sortKeys);
+        sorter.sort();
 
         scrollPane.setViewportView(table);
     }
@@ -261,7 +320,7 @@ public class SyncWindowForm extends JDialog {
             String col[] = {"Resource Type", "Resource Id", "Name", "Description", "Modified Date", "Site"};
             updateTable(csscrollPane, cstable, listing, col);
         } catch (Exception var32) {
-            LOG.error(" \"Error Populating The List\", \"Error while getting the list of files form conent server  \" + var32.getMessage() + \", Please see the log file for more details\"");
+            LOG.error(" \"Error Populating The List\", \"Error while getting the list of files form content server  ", var32.getMessage());
         }
     }
 
@@ -272,25 +331,25 @@ public class SyncWindowForm extends JDialog {
             String col[] = {"Resource Type", "Resource Id", "Name", "Element (if any)", "Description", "Modified Date", "Sites"};
             updateTable(dsscrollPane, dstable, listing, col);
         } catch (Exception var32) {
-            LOG.error(" \"Error Populating The List\", \"Error while getting the list of files form conent server  \" + var32.getMessage() + \", Please see the log file for more details\"");
+            LOG.error(" \"Error Populating The List\", \"Error while getting the list of files form conent server ", var32.getMessage());
         }
     }
 
-    public void refresh() {
-        pack();
-        setLocationRelativeTo(null);
-    }
-
-    public void display(Container relativeContainer) {
-        this.relativeContainer = relativeContainer;
-        URL iconURL = getClass().getClassLoader().getResource("icons/sync.gif");
-        ImageIcon icon = new ImageIcon(iconURL);
-        setIconImage(icon.getImage());
-        refresh();
-        setMinimumSize(new Dimension(900, 600));
-        setVisible(true);
-
-    }
+//    public void refresh() {
+//        pack();
+//        setLocationRelativeTo(null);
+//    }
+//
+//    public void display(Container relativeContainer) {
+//        this.relativeContainer = relativeContainer;
+//        URL iconURL = getClass().getClassLoader().getResource("icons/sync.gif");
+//        ImageIcon icon = new ImageIcon(iconURL);
+//        setIconImage(icon.getImage());
+//        refresh();
+//        setMinimumSize(new Dimension(900, 600));
+//        setVisible(true);
+//
+//    }
 
     public JPanel getMainPanel() {
         return mainPanel;

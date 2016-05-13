@@ -218,7 +218,7 @@
           <grid row="12" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Oracle Web Center sites is running"/>
+          <text value=""/>
         </properties>
       </component>
       <vspacer id="a845e">

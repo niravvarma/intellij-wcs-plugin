@@ -22,7 +22,7 @@ public class SyncForm extends AnAction {
         Project project = event.getData(PlatformDataKeys.PROJECT);
         JFrame frame = WindowManager.getInstance().getFrame(project);
         final SyncWindowForm syncWindowForm = new SyncWindowForm(project, frame);
-        syncWindowForm.display(frame);
+//        syncWindowForm.display(frame);
     }
 
     @Override

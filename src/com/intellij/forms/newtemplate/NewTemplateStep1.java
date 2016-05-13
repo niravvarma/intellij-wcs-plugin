@@ -4,8 +4,12 @@ package com.intellij.forms.newtemplate;
 import com.fatwire.csdt.valueobject.enumeration.ElementFileType;
 import com.fatwire.csdt.valueobject.enumeration.TemplateUsage;
 import com.fatwire.csdt.valueobject.ui.Template;
+import com.fatwire.wem.sso.SSOException;
 import com.intellij.csdt.CSDPUtil;
 import com.intellij.csdt.rest.RestProvider;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -35,7 +39,7 @@ public class NewTemplateStep1 extends JDialog {
 
     private static Logger LOG = Logger.getInstance(NewTemplateStep1.class);
     public Template template;
-    private boolean autoPopulateRootElement;
+    private boolean autoPopulateRootElement = true;
     private boolean autoPopulateStoragePath = true;
     private NewTemplateStep1 newTemplateStep1;
     private Project project;
@@ -104,30 +108,22 @@ public class NewTemplateStep1 extends JDialog {
 
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 LOG.info("Getting Sites for current user");
+                try {
+                    String[] usersites = CSDPUtil.getUserSitenames();
+                    for (String s : usersites) {
+                        comboBoxSite.addItem(s);
+                    }
 
-                String[] usersites = CSDPUtil.getUserSitenames();
-                for (String s : usersites) {
-                    comboBoxSite.addItem(s);
+                    LOG.info("Getting types for current user");
+
+                    allTypes = RestProvider.getAllAssetTypes();
+                } catch (SSOException exception) {
+                    LOG.debug("SSOException - is WCS running?", exception);
+                    Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Error opening the New Template Window", "Is Oracle WebCenter Sites running?<br>" + exception.getLocalizedMessage(), NotificationType.ERROR), project);
+                } catch (RuntimeException exception) {
+                    LOG.debug("RuntimeException -" + exception.getMessage(), exception);
+                    Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Error opening the New Template Window", exception.getMessage(), NotificationType.ERROR), project);
                 }
-
-                LOG.info("Getting types for current user");
-
-                allTypes = RestProvider.getAllAssetTypes();
-//                com.fatwire.rest.beans.Type anyType=new com.fatwire.rest.beans.Type();
-//                anyType.setName("Can apply to any asset type");
-//                comboBoxAssetType.addItem(new DropDownType(anyType));
-//                for(com.fatwire.rest.beans.Type type:allTypes){
-//                    comboBoxAssetType.addItem(new DropDownType(type));
-//
-//                }
-
-//                LOG.info("Getting acls for current user");
-
-//
-//                for(String s:acls){
-//                    comboBoxUsage.addItem(s);
-//                }
-
             }
 
             public void onSuccess() {
@@ -178,8 +174,9 @@ public class NewTemplateStep1 extends JDialog {
 
                     try {
                         populateElementFields();
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
+                    } catch (IOException exception) {
+                        LOG.debug("IOException", exception);
+                        Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Error opening the New Template Window", exception.getLocalizedMessage(), NotificationType.ERROR), project);
                     }
                 }
             }
@@ -216,8 +213,9 @@ public class NewTemplateStep1 extends JDialog {
                     populateElementFields();
                     finishButton.setEnabled(isPageComplete());
                     nextButton.setEnabled(isPageComplete());
-                } catch (IOException e1) {
-                    e1.printStackTrace();
+                } catch (IOException exception) {
+                    LOG.debug("IOException", exception);
+                    Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Error opening the New Template Window", exception.getLocalizedMessage(), NotificationType.ERROR), project);
                 }
             }
 
@@ -264,18 +262,23 @@ public class NewTemplateStep1 extends JDialog {
     }
 
     private void populateAssetType(String assetTypeName) {
-        String siteName = comboBoxSite.getSelectedItem().toString();
-        String[] assetTypes = CSDPUtil.addDefault(CSDPUtil.getEnabledTypesForSite(siteName), "Can apply to any asset type");
+        try {
+            String siteName = comboBoxSite.getSelectedItem().toString();
+            String[] assetTypes = CSDPUtil.addDefault(CSDPUtil.getEnabledTypesForSite(siteName), "Can apply to any asset type");
 
-        comboBoxAssetType.removeAllItems();
-        for (String asseType : assetTypes) {
-            comboBoxAssetType.addItem(asseType);
-        }
+            comboBoxAssetType.removeAllItems();
+            for (String asseType : assetTypes) {
+                comboBoxAssetType.addItem(asseType);
+            }
 //        listSubtypes.setListData(assetTypes);
-        String targetAssetTypeName = StringUtils.defaultString(assetTypeName);
-        targetAssetTypeName = ArrayUtils.contains(assetTypes, targetAssetTypeName) ? targetAssetTypeName : "Can apply to any asset type";
-        comboBoxAssetType.setSelectedItem(targetAssetTypeName);
+            String targetAssetTypeName = StringUtils.defaultString(assetTypeName);
+            targetAssetTypeName = ArrayUtils.contains(assetTypes, targetAssetTypeName) ? targetAssetTypeName : "Can apply to any asset type";
+            comboBoxAssetType.setSelectedItem(targetAssetTypeName);
 //        listSubtypes.setText(targetAssetTypeName);
+        } catch (SSOException exception) {
+            LOG.debug("SSOException", exception);
+            Notifications.Bus.notify(new Notification("intellij-wcs-plugin", "Error opening the New Template Window", "Is Oracle WebCenter Sites running?<br>" + exception.getLocalizedMessage(), NotificationType.ERROR), project);
+        }
     }
 
     private void populateSubType() {

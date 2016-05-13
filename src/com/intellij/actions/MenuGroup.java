@@ -3,6 +3,7 @@ package com.intellij.actions;
 import com.intellij.SyncWindowForm;
 import com.intellij.configurations.WebCenterSitesPluginModuleConfigurationData;
 import com.intellij.forms.NewElementCatalog;
+import com.intellij.forms.element.NewElementStep1;
 import com.intellij.forms.newtemplate.NewTemplateStep1;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
@@ -22,7 +23,7 @@ public class MenuGroup extends ActionGroup {
     @NotNull
     @Override
     public AnAction[] getChildren(@Nullable AnActionEvent anActionEvent) {
-        children = new AnAction[3];
+        children = new AnAction[4];
 
         URL syncIconURL = getClass().getClassLoader().getResource("icons/sync.gif");
         ImageIcon syncIcon = new ImageIcon(syncIconURL);
@@ -53,8 +54,8 @@ public class MenuGroup extends ActionGroup {
             public void actionPerformed(AnActionEvent event) {
                 Project project = event.getData(PlatformDataKeys.PROJECT);
                 JFrame frame = WindowManager.getInstance().getFrame(project);
-                final NewElementCatalog newElementCatalog = new NewElementCatalog();
-                newElementCatalog.display(frame);
+                final NewElementCatalog newElementCatalog = new NewElementCatalog(project, frame);
+
             }
 
             @Override
@@ -75,6 +76,25 @@ public class MenuGroup extends ActionGroup {
                 Project project = event.getData(PlatformDataKeys.PROJECT);
                 JFrame frame = WindowManager.getInstance().getFrame(project);
                 final NewTemplateStep1 newElementCatalog = new NewTemplateStep1(frame);
+            }
+
+            @Override
+            public void update(AnActionEvent e) {
+                if (WebCenterSitesPluginModuleConfigurationData.getInstance(e.getProject()).isPluginActive()) {
+                    Object navigatable = e.getData(CommonDataKeys.PROJECT);
+                    e.getPresentation().setEnabledAndVisible(navigatable != null);
+                } else {
+                    return;
+                }
+            }
+        };
+
+        URL newElementIconURL = getClass().getClassLoader().getResource("icons/newelement_wiz.gif");
+        ImageIcon newElementIcon = new ImageIcon(newElementIconURL);
+        children[3] = new AnAction("Create Element", null, newElementIcon) {
+            public void actionPerformed(AnActionEvent event) {
+                Project project = event.getData(PlatformDataKeys.PROJECT);
+                new NewElementStep1(project, null);
             }
 
             @Override

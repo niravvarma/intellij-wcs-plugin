@@ -1,4 +1,5 @@
 package com.intellij.csdt;
+
 import COM.FutureTense.Interfaces.Utilities;
 import com.fatwire.cs.core.http.HostConfig;
 import com.fatwire.cs.core.http.HttpAccess;
@@ -21,6 +22,7 @@ import com.intellij.csdt.util.Constants;
 import com.intellij.openapi.diagnostic.Logger;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.groovy.tools.shell.Shell;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -337,8 +339,20 @@ public class CSDPUtil {
         }
     }
     public static FSDataStore getDatastore() {
-        String basepath = (new File(getWorkspaceFullPath())).getParentFile().getParent();
-        return FSDataStore.getInstance(null, basepath, getDatastoreName());
+        File workspaceFile = (new File(getWorkspaceFullPath()));
+        String basepath = workspaceFile.getName();
+        String storeName = basepath;
+        if (!basepath.endsWith("envision")) {
+            basepath = basepath + "/envision";
+        }
+        while (!basepath.endsWith("envision")) {
+            basepath = workspaceFile.getParent();
+            workspaceFile = workspaceFile.getParentFile();
+            storeName = workspaceFile.getName() + File.separator + storeName;
+        }
+        LOG.info("basepath: " + basepath);
+        LOG.info("getDatastoreName: " + getDatastoreName());
+        return FSDataStore.getInstance(null, workspaceFile.getParent(), storeName.replace("envision" + File.separator, ""));
     }
     public static String getDatastoreName() {
         //return Activator.getDefault().getPreferenceStore().getString("fw.datastorename");
@@ -347,7 +361,7 @@ public class CSDPUtil {
     public static String getWorkspaceFullPath() {
         //IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         //return root.getProject(getProjectName()).getLocationURI().getRawPath();
-        System.out.println("workpsace: " + webCenterSitesPluginModuleConfigurationData.getWorkspace());
+        LOG.info("Workspace: " + webCenterSitesPluginModuleConfigurationData.getWorkspace());
         return webCenterSitesPluginModuleConfigurationData.getWorkspace();
     }
 
@@ -411,7 +425,7 @@ public class CSDPUtil {
         return retval;
     }
 
-    public static ArrayList<String[]> getCSListing(String[] types) {
+    public static ArrayList<String[]> getCSListing(String[] types) throws IOException, SSOException {
         ArrayList retval = new ArrayList();
         String listStr = "";
         String[] element = types;
@@ -430,15 +444,8 @@ public class CSDPUtil {
         String var10 = "&resources=" + listStr + "&command=listcs" + "&datastore=" + getDatastoreName();
 
         String var11;
-        try {
+
             var11 = post(var9, var10);
-        } catch (SSOException var7) {
-            var11 = "";
-            //com.fatwire.csdt.util.Log.error(var7);
-        } catch (IOException var8) {
-            var11 = "";
-            //com.fatwire.csdt.util.Log.error(var8);
-        }
 
         retval.addAll(_parseResponse(var11));
         return retval;
@@ -575,11 +582,11 @@ public class CSDPUtil {
         }
     }
 
-    public static String[] getUserSitenames() {
+    public static String[] getUserSitenames() throws SSOException {
         return getUserSitenames(1);
     }
 
-    public static String[] getUserSitenames(int sortOrder) {
+    public static String[] getUserSitenames(int sortOrder) throws SSOException {
         List userSites = RestProvider.getUserSites(getUserName());
         List siteNames = getNames(userSites, new CSDPUtil.NameExtractor() {
 
@@ -696,7 +703,7 @@ public class CSDPUtil {
         return raw.replace("/", File.separator);
     }
 
-    public static List<String> getAllAssetTypes() {
+    public static List<String> getAllAssetTypes() throws SSOException {
         return getNames(RestProvider.getAllAssetTypes(), new CSDPUtil.NameExtractor() {
             @Override
             public String getName(Object type) {
@@ -716,7 +723,7 @@ public class CSDPUtil {
         }
     }
 
-    public static String[] getEnabledTypesForSite(String siteName) {
+    public static String[] getEnabledTypesForSite(String siteName) throws SSOException {
         List<String> allTypeNames = getAllAssetTypes();
         List<String> enabledTypeNames = getNames(RestProvider.getEnabledTypes(siteName), new CSDPUtil.NameExtractor() {
             @Override
@@ -753,7 +760,7 @@ public class CSDPUtil {
         return String.valueOf(RestProvider.getSite(pubName).getId());
     }
 
-    public static String getPubName(String pubId) {
+    public static String getPubName(String pubId) throws SSOException {
         if (StringUtils.isNotBlank(pubId)) {
             List usersites = RestProvider.getUserSites(getUserName());
             Iterator i$ = usersites.iterator();
@@ -783,6 +790,96 @@ public class CSDPUtil {
 
         return sb.toString();
     }
+
+
+    public static String buildRootElement(String templateName) {
+        return buildRootElement(templateName, null);
+    }
+
+    public static boolean deleteByFile(String fileName, Shell shell) {
+        ArrayList list = new ArrayList();
+        list.add(fileName);
+        return deleteByFile(list, shell);
+    }
+
+    public static boolean deleteByFile(ArrayList<String> fileNames, Shell shell) {
+        boolean success = true;
+        if (null != fileNames && !fileNames.isEmpty()) {
+//            DialogWrapper dialog = new SimpleDialog();
+
+////            MessageDialogWithToggle diag = MessageDialogWithToggle.openOkCancelConfirm(shell, "Resource Delete", "Selected assets will be marked VOID and related files will be deleted. Are you sure you want to delete selected resources(s)?", "Remove voided assets on disk", false, (IPreferenceStore)null, (String)null);
+////            if(diag.getReturnCode() == 0) {
+//                Iterator i$ = fileNames.iterator();
+//
+//                while(true) {
+//                    String fileName;
+//                    do {
+//                        do {
+//                            if(!i$.hasNext()) {
+//                                if(success) {
+////                                    MessageDialog.openInformation(shell, "Info ", "Delete Successful");
+////                                    refreshIResource();
+//                                }
+//
+//                                return success;
+//                            }
+//
+//                            fileName = (String)i$.next();
+//                        } while(fileName == null);
+//                    } while(fileName.trim().length() <= 0);
+//
+////                    IPath projectPath = getProjectLocation(getProjectName());
+////                    String projectLocation = projectPath.toOSString();
+//                    if(fileName.startsWith(projectLocation)) {
+//                        fileName = fileName.substring(projectLocation.length());
+//                    }
+//
+//                    FSDataStore ds = getDatastore();
+//                    DSKeyInfo dsKey = ds.getKeyForFilename(fileName);
+//                    String element = "OpenMarket/Xcelerate/PrologActions/Publish/csdt/CSDTService";
+//                    String postData = "&command=delete&dskeys=" + dsKey.getName();
+//
+//                    try {
+//                        String ex = post(element, postData);
+//                        if(!ex.contains("Success")) {
+////                            MessageDialog.openInformation(shell, "Delete Unsuccessful for " + fileName, ex != null?ex.trim():"");
+//                            success = false;
+//                        } else if(diag.getToggleState()) {
+//                            ds.remove(dsKey.getName());
+//                        } else {
+//                            String[] split1 = ex.split(".*<assetid>");
+//                            String[] split2 = split1[1].split("</assetid>");
+//                            String[] assetIds = split2[0].split(",");
+//                            HashMap map = new HashMap();
+//                            String[] arr$ = assetIds;
+//                            int len$ = assetIds.length;
+//
+//                            for(int i$1 = 0; i$1 < len$; ++i$1) {
+//                                String assetId = arr$[i$1];
+//                                String[] typeId = assetId.split(":");
+//                                Object ids = (List)map.get(typeId[0]);
+//                                if(ids == null) {
+//                                    ids = new ArrayList();
+//                                }
+//
+//                                ((List)ids).add(typeId[1]);
+//                                map.put(typeId[0], ids);
+//                            }
+//
+//                            callExport(map, (String)null, false);
+//                        }
+//                    } catch (Exception var23) {
+//                        success = false;
+//                        var23.printStackTrace();
+////                        MessageDialog.openError(shell, "Delete Failed", "Could not delete the asset associated with " + fileName + ". Please check the log for details.");
+//                    }
+//                }
+//            }
+        }
+
+        return success;
+    }
+
     public interface NameExtractor<T> {
         String getName(T var1);
     }

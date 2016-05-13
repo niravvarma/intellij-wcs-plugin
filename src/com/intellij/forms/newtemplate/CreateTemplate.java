@@ -30,7 +30,7 @@ public class CreateTemplate {
 
     public static void createTemplate(Project project, final Template uiObject) {
 
-        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Loading Synchronization tool") {
+        ProgressManager.getInstance().run(new Task.Backgroundable(project, "Creating Template") {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 progressIndicator.setFraction(0);
                 com.fatwire.csdt.valueobject.service.Template serviceObject = new com.fatwire.csdt.valueobject.service.Template();

@@ -90,6 +90,9 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
             if (webCenterSitesPluginModuleConfigurationData.getDataStoreName() != null) {
                 stateElement.setAttribute("wcs-datastore", webCenterSitesPluginModuleConfigurationData.getDataStoreName());
             }
+            if (webCenterSitesPluginModuleConfigurationData.getResourceString() != null) {
+                stateElement.setAttribute("wcs-resource-string", webCenterSitesPluginModuleConfigurationData.getResourceString());
+            }
         }
         element.addContent(stateElement);
 
@@ -111,6 +114,7 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
         String contextPath = stateElement.getAttributeValue("wcs-context-path");
         String workspace = stateElement.getAttributeValue("wcs-workspace");
         String datastore = stateElement.getAttributeValue("wcs-datastore");
+        String resourceString = stateElement.getAttributeValue("wcs-resource-string");
         LOG.debug("pluginActive: " + pluginActive +
                 "\ninstance: " + instance +
                 "\nmoduleName: " + moduleName +
@@ -118,7 +122,8 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
                 "\npassword: " + password +
                 "\ncontextPath: " + contextPath +
                 "\nworkspace: " + workspace +
-                "\ndatastore: " + datastore
+                "\ndatastore: " + datastore +
+                "\nresourcestring: " + resourceString
         );
 
         webCenterSitesPluginModuleConfigurationData.setPluginActive(Boolean.valueOf(pluginActive));
@@ -130,6 +135,7 @@ public class WebCenterSitesPlugin implements ProjectComponent, PersistentStateCo
             webCenterSitesPluginModuleConfigurationData.setContextPath(contextPath);
             webCenterSitesPluginModuleConfigurationData.setWorkspace(workspace);
             webCenterSitesPluginModuleConfigurationData.setDataStoreName(datastore);
+            webCenterSitesPluginModuleConfigurationData.setResourceString(resourceString);
             CSDPUtil.setConfigurationData(webCenterSitesPluginModuleConfigurationData);
         }
     }

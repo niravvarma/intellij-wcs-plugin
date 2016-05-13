@@ -26,19 +26,16 @@ public class RestProvider {
     public RestProvider() {
     }
 
-    public static List<UserSite> getUserSites(String username) {
+    public static List<UserSite> getUserSites(String username) throws SSOException {
 
 
         Client client = Client.create();
         WebResource resource = client.resource(CSDPUtil.getRESTServletUrl());
         resource = resource.path("users").path(username);
 
-        try {
+
             resource = resource.queryParam("multiticket", TicketMaster.getTicket());
-        } catch (SSOException var8) {
-//            com.fatwire.csdt.util.Log.error(var8);
-            throw new RuntimeException(var8);
-        }
+
 
         WebResource.Builder builder = resource.accept("application/xml");
         builder = builder.header("Pragma", "auth-redirect=false");
@@ -55,19 +52,14 @@ public class RestProvider {
         }
     }
 
-    public static List<Type> getAllAssetTypes() {
+    public static List<Type> getAllAssetTypes() throws SSOException, RuntimeException {
 
         Client client = Client.create();
         WebResource resource = client.resource(CSDPUtil.getRESTServletUrl());
         resource = resource.path("types");
 
-        try {
             resource = resource.queryParam("multiticket", TicketMaster.getTicket());
-        } catch (SSOException var7) {
-            LOG.error(var7);
-//            com.fatwire.csdt.util.Log.error(var7);
-            throw new RuntimeException(var7);
-        }
+
 
         WebResource.Builder builder = resource.accept("application/xml");
         builder = builder.header("Pragma", "auth-redirect=false");
@@ -79,7 +71,6 @@ public class RestProvider {
             return types.getTypes();
         } else {
             LOG.error(message);
-//            com.fatwire.csdt.util.Log.error(message);
             throw new RuntimeException(message);
         }
     }

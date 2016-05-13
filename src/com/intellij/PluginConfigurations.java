@@ -110,6 +110,7 @@ public class PluginConfigurations implements ModuleComponent, Configurable {
                 statusJLabel.setText("Checking configurations...");
 
                 webCenterSitesPluginModuleConfigurationData.setConfigValid(checkConfigurations());
+
             }
         }
 
@@ -182,6 +183,7 @@ public class PluginConfigurations implements ModuleComponent, Configurable {
             webCenterSitesPluginModuleConfigurationData.setContextPath(sitesContextPathTextField.getText());
             webCenterSitesPluginModuleConfigurationData.setWorkspace(workspaceTextField.getText());
             webCenterSitesPluginModuleConfigurationData.setDataStoreName(datastoreTextField.getText());
+            CSDPUtil.setConfigurationData(webCenterSitesPluginModuleConfigurationData);
         }
     }
 

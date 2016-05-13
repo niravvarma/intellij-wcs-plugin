@@ -1,66 +1,112 @@
 <idea-plugin version="2">
-  <id>com.lopesdasilva.wcs.plugin</id>
-  <name>IntelliJ Oracle WebCenter Sites Plugin</name>
-  <version>0.3.1</version>
-  <vendor email="lopesdasilva.rui@gmail.com" url="https://github.com/lopesdasilva/intellij-wcs-plugin">Intellij WCS
-    Plugin
-  </vendor>
+    <id>com.lopesdasilva.wcs.plugin</id>
+    <name>IntelliJ Oracle WebCenter Sites Plugin</name>
+    <version>0.3.2.2-alpha</version>
+    <vendor email="lopesdasilva.rui@gmail.com" url="https://github.com/lopesdasilva/intellij-wcs-plugin">Intellij WCS
+        Plugin
+    </vendor>
 
-  <description><![CDATA[
-      This is a UNOFFICIAL Oracle WebCenter Sites plugin for IntelliJ  .<br>
-      <em>This is still alpha version</em>
+    <description><![CDATA[
+      This is a UNOFFICIAL Oracle WebCenter Sites 11g plugin for IntelliJ  .<br>
+      <em>This is still an <bold>alpha</bold> version</em>
+
     ]]></description>
 
-  <change-notes><![CDATA[
-      [BETA] Added Template Wizard.<br>
-      [BETA] Added Element Catalog Wizard.<br>
-      Fixed bug with multiple Intellij windows opened.<br>
-      Added on Save Listener to sync to wcs.<br>
-      Added Synchronization tool (import/export).<br>
-      Added project config file.<br>
+    <change-notes><![CDATA[
+     [0.4.0.0-alpha]<br>
+     <ul>
+      <li>Added new CSElement option</li>
+    </ul>
+    <ul>
+      <li>Fixed new element catalog & new Template</li>
+      <li>Error handling</li>
+    </ul>
+     [0.3.2.2-alpha]<br>
+    <ul>
+      <li>Fixed new element catalog</li>
+    </ul>
+    [0.3.2.1-alpha]<br>
+    <ul>
+      <li>Fixed workspace configuration</li>
+    </ul>
+    [0.3.2]<br>
+    <ul>
+      <li>Sync window visual fixes</li>
+    </ul>
+    [0.3.1]<br>
+    <ul>
+      <li>[BETA] Added Template Wizard.</li>
+      <li>[BETA] Added Element Catalog Wizard.</li>
+    </ul>
+    [0.2]<br>
+    <ul>
+      <li>Fixed bug with multiple Intellij windows opened.</li>
+      <li>Added on Save Listener to sync to wcs.</li>
+      <li>Added Synchronization tool (import/export).</li>
+      <li>Added project config file.</li>
+    </ul>
     ]]>
-  </change-notes>
+    </change-notes>
 
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="141.0"/>
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="141.0"/>
 
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-       on how to target different products -->
-  <!-- uncomment to enable plugin in all products
-  <depends>com.intellij.modules.lang</depends>
-  -->
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
 
-  <extensions defaultExtensionNs="com.intellij">
-    <projectService serviceInterface="com.intellij.configurations.WebCenterSitesPluginModuleConfigurationData"
-                    serviceImplementation="com.intellij.configurations.WebCenterSitesPluginModuleConfigurationData"/>
-  </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <projectService serviceInterface="com.intellij.configurations.WebCenterSitesPluginModuleConfigurationData"
+                        serviceImplementation="com.intellij.configurations.WebCenterSitesPluginModuleConfigurationData"/>
+    </extensions>
 
-  <application-components>
+    <application-components>
 
-  </application-components>
+    </application-components>
 
-  <module-components>
-    <component>
-      <implementation-class>com.intellij.PluginConfigurations</implementation-class>
-    </component>
+    <module-components>
+        <component>
+            <implementation-class>com.intellij.PluginConfigurations</implementation-class>
+        </component>
 
-  </module-components>
-  <project-components>
-    <component>
-      <implementation-class>com.intellij.WebCenterSitesPlugin</implementation-class>
-    </component>
-    <component>
-      <implementation-class>com.intellij.OnFileSaveComponent</implementation-class>
-    </component>
-  </project-components>
-  <actions>
-    <group id="MenuGroup" text="WebCenter Sites Plugin" popup="true"
-           class="com.intellij.actions.MenuGroup" icon="/icons/sites.gif">
-      <add-to-group anchor="first" group-id="ToolsMenu"/>
-    </group>
-    <!-- <action id="wcs-plugin-sync" class="com.intellij.SyncForm" text="Synchronize Data with WebCenter Sites"
-             description="Open the synchronization window">
-       <add-to-group group-id="ToolsMenu" anchor="first"/>
-     </action>-->
-  </actions>
+    </module-components>
+    <project-components>
+        <component>
+            <implementation-class>com.intellij.WebCenterSitesPlugin</implementation-class>
+        </component>
+        <component>
+            <implementation-class>com.intellij.OnFileSaveComponent</implementation-class>
+        </component>
+    </project-components>
+    <actions>
+        <group id="MenuGroup" text="WebCenter Sites Plugin" popup="true"
+               class="com.intellij.actions.MenuGroup" icon="/icons/sites.gif">
+            <add-to-group anchor="first" group-id="ToolsMenu"/>
+        </group>
+        <!-- <action id="wcs-plugin-sync" class="com.intellij.SyncForm" text="Synchronize Data with WebCenter Sites"
+                 description="Open the synchronization window">
+           <add-to-group group-id="ToolsMenu" anchor="first"/>
+         </action>-->
+        <group class="com.intellij.actions.ContextGroup" id="WCSEditorMenu" text="WebCenter Sites Plugin"
+               description="WebCenter Sites Plugin Editor Group" popup="true">
+            <action id="DeleteWCSElement" class="com.intellij.WCSDelete" text="Delete Element"
+                    description="Delete WCS Element"/>
+            <!-- The <separator> element defines a separator between actions.
+                 It can also have an <add-to-group> child element. -->
+            <separator/>
+            <!--<group id="TestActionSubGroup"/>-->
+            <!-- The <reference> element allows to add an existing action to the group.
+                 The mandatory "ref" attribute specifies the ID of the action to add. -->
+            <!--<reference ref="EditorCopy"/>-->
+            <add-to-group group-id="EditorPopupMenu"/>
+        </group>
+
+
+        <!--<action id="DeleteWCSElement" class="com.intellij.WCSDelete" text="Delete Element"-->
+        <!--description="Delete WCS Element">-->
+        <!--<add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>-->
+        <!--</action>-->
+    </actions>
 </idea-plugin>
