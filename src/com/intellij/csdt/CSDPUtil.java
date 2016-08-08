@@ -22,7 +22,6 @@ import com.intellij.csdt.util.Constants;
 import com.intellij.openapi.diagnostic.Logger;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.groovy.tools.shell.Shell;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -232,6 +231,7 @@ public class CSDPUtil {
         String password = getPassword();
         Post post = new Post();
         String csUrl = getCSUrl() + encode(element);
+        LOG.info("csURL: " + csUrl);
         post.setUrl(csUrl);
         post.setHeader("X-CSRF-Token", TicketMaster.getTicket());
         post.addParameter("_charset_", "UTF-8");
@@ -342,9 +342,9 @@ public class CSDPUtil {
         File workspaceFile = (new File(getWorkspaceFullPath()));
         String basepath = workspaceFile.getName();
         String storeName = basepath;
-        if (!basepath.endsWith("envision")) {
-            basepath = basepath + "/envision";
-        }
+//        if (!basepath.endsWith("envision")) {
+//            basepath = basepath + "/envision";
+//        }
         while (!basepath.endsWith("envision")) {
             basepath = workspaceFile.getParent();
             workspaceFile = workspaceFile.getParentFile();
@@ -796,21 +796,21 @@ public class CSDPUtil {
         return buildRootElement(templateName, null);
     }
 
-    public static boolean deleteByFile(String fileName, Shell shell) {
-        ArrayList list = new ArrayList();
-        list.add(fileName);
-        return deleteByFile(list, shell);
-    }
-
-    public static boolean deleteByFile(ArrayList<String> fileNames, Shell shell) {
-        boolean success = true;
-        if (null != fileNames && !fileNames.isEmpty()) {
-//            DialogWrapper dialog = new SimpleDialog();
-
-////            MessageDialogWithToggle diag = MessageDialogWithToggle.openOkCancelConfirm(shell, "Resource Delete", "Selected assets will be marked VOID and related files will be deleted. Are you sure you want to delete selected resources(s)?", "Remove voided assets on disk", false, (IPreferenceStore)null, (String)null);
+//    public static boolean deleteByFile(String fileName, Shell shell) {
+//        ArrayList list = new ArrayList();
+//        list.add(fileName);
+//        return deleteByFile(list, shell);
+//    }
+//
+//    public static boolean deleteByFile(ArrayList<String> fileNames, Shell shell) {
+//        boolean success = true;
+//        if (null != fileNames && !fileNames.isEmpty()) {
+////            DialogWrapper dialog = new SimpleDialog();
+//
+//////            MessageDialogWithToggle diag = MessageDialogWithToggle.openOkCancelConfirm(shell, "Resource Delete", "Selected assets will be marked VOID and related files will be deleted. Are you sure you want to delete selected resources(s)?", "Remove voided assets on disk", false, (IPreferenceStore)null, (String)null);
 ////            if(diag.getReturnCode() == 0) {
 //                Iterator i$ = fileNames.iterator();
-//
+////
 //                while(true) {
 //                    String fileName;
 //                    do {
@@ -844,8 +844,8 @@ public class CSDPUtil {
 //                        if(!ex.contains("Success")) {
 ////                            MessageDialog.openInformation(shell, "Delete Unsuccessful for " + fileName, ex != null?ex.trim():"");
 //                            success = false;
-//                        } else if(diag.getToggleState()) {
-//                            ds.remove(dsKey.getName());
+////                        } else if(diag.getToggleState()) {
+////                            ds.remove(dsKey.getName());
 //                        } else {
 //                            String[] split1 = ex.split(".*<assetid>");
 //                            String[] split2 = split1[1].split("</assetid>");
@@ -875,10 +875,10 @@ public class CSDPUtil {
 //                    }
 //                }
 //            }
-        }
-
-        return success;
-    }
+////        }
+//
+//        return success;
+//    }
 
     public interface NameExtractor<T> {
         String getName(T var1);

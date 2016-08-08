@@ -10,14 +10,19 @@ import javax.swing.*;
  * Created by NB20308 on 13/05/2016.
  */
 public class SimpleDialog extends DialogWrapper {
-    public SimpleDialog(@Nullable Project project, boolean canBeParent) {
-        super(project, canBeParent);
-    }
+    private JLabel textFieldTitle;
+    private JLabel textFieldMessage;
+    private JPanel mainPanel;
 
+    public SimpleDialog(@Nullable Project project, String title, String message) {
+        super(project);
+        this.textFieldTitle.setText(title);
+        this.textFieldMessage.setText(message);
+    }
 
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        return null;
+        return mainPanel;
     }
 }
